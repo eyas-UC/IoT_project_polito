@@ -1,6 +1,6 @@
 # IoT_project_polito
 
-RESOURCE CATALOG
+##RESOURCE CATALOG
 the goal of the Resource catalog is basically to list all the available resources represented by their corresponding Device Connector.
 (from the slides of lecture 11)
 The Resource Catalog is a device registry system. It registers
