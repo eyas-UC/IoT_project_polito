@@ -1,0 +1,50 @@
+{
+  "description": "eFactory Data Spine Service Registry",
+  "dnssdEnabled": false,
+  "storage": {
+    "type": "leveldb",
+    "dsn": "./leveldb"
+  },
+  "http" : {
+    "bindAddr": "0.0.0.0",
+    "bindPort": 8082
+  },
+  "mqtt":{
+    "client" : {
+      "brokerID": "MQTT_ new link",
+      "brokerURI": "test.mosquitto.org",
+      "regTopics": [],
+      "willTopics": [],
+      "qos": 1,
+      "username": "",
+      "password": ""
+    },
+    "additionalClients": [],
+    "commonRegTopics":  ["sr/v3/cud/reg/+"],
+    "commonWillTopics": ["sr/v3/cud/dereg/+"],
+    "topicPrefix": "sr/v3/announcement/"
+  },
+  "auth": {
+    "enabled": false,
+    "provider": "provider-name",
+    "providerURL": "https://provider-url",
+    "serviceID": "sampleSC",
+    "basicEnabled": false,
+    "authorization": {
+      "rules": [
+        {
+          "resources": ["/"],
+          "methods": ["GET","POST", "PUT", "DELETE"],
+          "users": ["admin"],
+          "groups": []
+        },
+        {
+          "resources": ["/"],
+          "methods": ["GET"],
+          "users": [],
+          "groups": ["anonymous"]
+        }
+      ]
+    }
+  }
+}

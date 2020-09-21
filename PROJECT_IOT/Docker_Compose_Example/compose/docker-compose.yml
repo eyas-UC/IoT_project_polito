@@ -1,0 +1,18 @@
+version : '3'
+
+services:
+  appA:
+    image:  python:alpine3.7
+    build:
+      context:  ./client
+      dockerfile: Dockerfile_client
+
+        
+  appB:
+    image:  python:alpine3.7
+    build:
+      context:  ./service
+      dockerfile: Dockerfile_service  
+      
+    ports:
+      - 8080:8080

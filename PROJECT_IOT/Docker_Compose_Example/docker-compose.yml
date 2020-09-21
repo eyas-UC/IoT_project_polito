@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  appb:
+    build:
+      context:  ./service
+      dockerfile: Dockerfile_service
+      args:
+        - PYTHON_VERSION=3.7.0-alpine3.8
+
+
+    ports:
+      - 8080:8080
+    stdin_open: true
+    tty: true
+    networks:
+      - mynet
+
+  appa:
+    build:
+      context:  ./client
+      dockerfile: Dockerfile_client
+      args:
+        - PYTHON_VERSION=3.7.0-alpine3.8
+    stdin_open: true
+    tty: true
+    networks:
+    - mynet
+
+  imager:
+    build:
+      context:  ./im_cap
+      dockerfile: Dockerfile_im_cap
+      args:
+        - PYTHON_VERSION=3.7-slim-stretch
+    ports:
+      - 8090:8090
+    stdin_open: true
+    tty: true
+    networks:
+    - mynet
+
+networks:
+  mynet:
+
+
