@@ -19,10 +19,12 @@ class Resource_cat:
         return str(json_file["list_of_RCs"])
 
     def POST(self):
+        #get data from POST request body
         to_add= cherrypy.request.body.read()
         data=to_add.decode('utf-8')
-
         dict = json.loads(data)
+
+
         print(dict)
         dict['Updated'] = time.ctime(time.time())
         print(dict)
@@ -32,16 +34,16 @@ class Resource_cat:
         logfile.close()
         json_file["list_of_RCs"].append(dict)
         print(json_file)
-
+        resources_list = json_file["list_of_RCs"]
         with open('logfile.json', 'w') as logfile:
             json.dump(json_file, logfile)
         logfile.close()
 
-        return 'success'
+        return str(resources_list)
 
 
     def PUT(self):
-        #get data from PUT request
+        #get data from PUT request body
         to_edit = cherrypy.request.body.read()
         data = to_edit.decode('utf-8')
         dict = json.loads(data)
@@ -50,15 +52,24 @@ class Resource_cat:
         with open('logfile.json', 'r') as logfile:
             json_file = json.load(logfile)
         logfile.close()
+
+        # get the list of resources from the json-formatted log file
         resources_list= json_file["list_of_RCs"]
+
+
+
         for R in resources_list:
             if dict['name']==R['name']:
                 print('\n\n found it\n \n')
-                print(resources_list.index(R))
+                RC_list_index =resources_list.index(R)
 
                 R = dict
                 R['Updated'] = (time.ctime(time.time()))
-                resources_list[1]=dict
+                print('ok01')
+                print(RC_list_index)
+                print(type((RC_list_index)))
+                resources_list[RC_list_index]=dict
+                print('ok02')
         print(resources_list)
         json_file['list_of_RCs'] = resources_list
         print(json_file)
@@ -77,7 +88,7 @@ class Resource_cat:
 
 if __name__ == '__main__':
     Res = {"outer_part": "hello",
-           "list_of_RCs": [{ "name": "push button","ID": 623,"protocol": "MQTT/REST","URL":"url/broker URL", "Updated": time.ctime(time.time())}]}
+           "list_of_RCs": [{ "name": "motion","ID": 1,"protocol": "REST","URL":"url", "Updated": time.ctime(time.time())}]}
 
     with open('logfile.json', 'w') as logfile:
         json.dump(Res, logfile)
