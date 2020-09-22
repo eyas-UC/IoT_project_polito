@@ -5,6 +5,7 @@ import requests
 import numpy as np
 import sys
 import hashlib
+import json
 
 
 class HelloWorld(object):
@@ -81,11 +82,13 @@ if __name__ == '__main__':
               "ttl": 3
             }"""
 
-    url = 'http://linksmart:8082/' #when using docker container
-# url = 'http://localhost:8082/'
+    # url = 'http://linksmart:8082/' #when using docker container
+    url = 'http://localhost:8082/'
     while True:
         try:
+            # print('ok')
             x = requests.post(url, myobj)
+            # print('ok1')
             ID = json.loads(x.text)['id']
             print(f'id is {ID}')
             print('registration succeeded\nID is {}'.format(ID))

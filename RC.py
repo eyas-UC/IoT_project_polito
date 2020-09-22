@@ -12,18 +12,17 @@ class Resource_cat:
         logfile.close()
         print(json_file)
         return str(json_file["list_of_RCs"])
-    #maybe implement a filter using URI (future work)
+    # maybe implement a filter using URI (future work)
 
     def POST(self):
-        #get the json to be added from POST request body
+        # get the json to be added from POST request body
         to_add= cherrypy.request.body.read()
         data=to_add.decode('utf-8')
         dict = json.loads(data)
-
-
         print(dict)
         dict['Updated'] = time.ctime(time.time())
         print(dict)
+
 
         with open('logfile.json', 'r') as logfile:
             json_file = json.load(logfile)
@@ -49,9 +48,9 @@ class Resource_cat:
             json_file = json.load(logfile)
         logfile.close()
 
+
         # get the list of resources from the json-formatted log file
         resources_list= json_file["list_of_RCs"]
-
 
 
         for R in resources_list:
@@ -66,9 +65,12 @@ class Resource_cat:
                 print(type((RC_list_index)))
                 resources_list[RC_list_index]=dict
                 print('ok02')
+
+
         print(resources_list)
         json_file['list_of_RCs'] = resources_list
         print(json_file)
+
         # backing things up
         with open('logfile.json', 'w') as logfile:
             json.dump(json_file, logfile)
@@ -89,9 +91,6 @@ if __name__ == '__main__':
     # with open('logfile.json', 'w') as logfile:
     #     json.dump(Res, logfile)
     # logfile.close()
-
-
-
 
     conf = {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
     cherrypy.tree.mount(Resource_cat(), '/', conf)
