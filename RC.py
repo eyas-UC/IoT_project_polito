@@ -3,18 +3,16 @@ import time
 import json
 import requests
 
-Res = {"outer_part": "hello", "list_of_RCs": [{"id": 623, "name": "push button", "Updated": time.ctime(time.time())}]}
 
-with open('data.json', 'w') as logfile:
-    json.dump(Res, logfile)
-logfile.close()
-
-
+#
+# Class Resource:
+#     def __init__(self):
+#
 class Resource_cat:
     exposed = True
 
     def GET(self, *uri, **params):
-        with open('data.json', 'r') as logfile:
+        with open('logfile.json', 'r') as logfile:
             json_file = json.load(logfile)
         logfile.close()
         print(json_file)
@@ -29,23 +27,59 @@ class Resource_cat:
         dict['Updated'] = time.ctime(time.time())
         print(dict)
 
-        with open('data.json', 'r') as logfile:
+        with open('logfile.json', 'r') as logfile:
             json_file = json.load(logfile)
         logfile.close()
         json_file["list_of_RCs"].append(dict)
         print(json_file)
 
-        with open('data.json', 'w') as logfile:
+        with open('logfile.json', 'w') as logfile:
             json.dump(json_file, logfile)
         logfile.close()
 
         return 'success'
 
 
+    def PUT(self):
+        #get data from PUT request
+        to_edit = cherrypy.request.body.read()
+        data = to_edit.decode('utf-8')
+        dict = json.loads(data)
+
+        # get data from registered resources
+        with open('logfile.json', 'r') as logfile:
+            json_file = json.load(logfile)
+        logfile.close()
+        Resources_list= json_file["list_of_RCs"]
+        for R in Resources_list:
+            if dict['name']==R['name']:
+                print('\n\n found it\n \n')
+                print(Resources_list.index(R))
+
+                R = dict
+                R['Updated'] = (time.ctime(time.time()))
+                Resources_list[1]=dict
+        print(Resources_list)
+        return str(Resources_list)
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
+    Res = {"outer_part": "hello",
+           "list_of_RCs": [{"id": 623, "name": "push button", "Updated": time.ctime(time.time())}]}
+
+    with open('logfile.json', 'w') as logfile:
+        json.dump(Res, logfile)
+    logfile.close()
+
+
+
+
     conf = {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
     cherrypy.tree.mount(Resource_cat(), '/', conf)
     cherrypy.config.update({'server.socket_host': '0.0.0.0'})
