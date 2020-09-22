@@ -1,0 +1,6 @@
+git pull --rebase origin master
+
+git add "File name.py"
+git commit .
+
+git push origin master
