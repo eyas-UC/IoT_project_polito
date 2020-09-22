@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
         except:
             print('registration failed with the host')
-        time.sleep(5)
+            time.sleep(5)
 
     cherrypy.engine.exit()
 
