@@ -110,10 +110,10 @@ if __name__ == '__main__':
                       "title": "RC",
                       "description": "none", 
                       "protocol": "REST",
-                      "url": "http://RC:8097",
+                      "url": "http://localhost:8087",
                       "spec": {
                         "mediaType": "JSON",
-                        "url": "string",
+                        "url": "http://RC:8087",
                         "schema": {}
                       },
                       "meta": {}
@@ -123,8 +123,8 @@ if __name__ == '__main__':
                   "ttl": 3
                 }"""
 
-    url = 'http://linksmart:8082/'
-    url = 'http://localhost:8082/'
+    url = 'http://linksmart:8082/' # when using a docker container
+    url = 'http://localhost:8082/' #
     while True:
         try:
             x = requests.post(url, myobj)
@@ -137,12 +137,9 @@ if __name__ == '__main__':
                     ID = json.loads(x.text)['id']
                     print('update succeeded\nID is {}'.format(ID))
                     time.sleep(5)
-
                 except:
                     print('update failed with the host')
-
         except:
             print('registration failed with the host')
             time.sleep(5)
-
     cherrypy.engine.exit()
