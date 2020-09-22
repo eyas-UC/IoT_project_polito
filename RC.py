@@ -3,11 +3,6 @@ import time
 import json
 import requests
 
-
-#
-# Class Resource:
-#     def __init__(self):
-#
 class Resource_cat:
     exposed = True
 
@@ -17,9 +12,10 @@ class Resource_cat:
         logfile.close()
         print(json_file)
         return str(json_file["list_of_RCs"])
+    #maybe implement a filter using URI (future work)
 
     def POST(self):
-        #get data from POST request body
+        #get the json to be added from POST request body
         to_add= cherrypy.request.body.read()
         data=to_add.decode('utf-8')
         dict = json.loads(data)
@@ -87,12 +83,12 @@ class Resource_cat:
 
 
 if __name__ == '__main__':
-    Res = {"outer_part": "hello",
-           "list_of_RCs": [{ "name": "motion","ID": 1,"protocol": "REST","URL":"url", "Updated": time.ctime(time.time())}]}
-
-    with open('logfile.json', 'w') as logfile:
-        json.dump(Res, logfile)
-    logfile.close()
+    # Res = {"outer_part": "hello",
+    #        "list_of_RCs": [{ "name": "motion","ID": 1,"protocol": "REST","URL":"url", "Updated": time.ctime(time.time())}]}
+    #
+    # with open('logfile.json', 'w') as logfile:
+    #     json.dump(Res, logfile)
+    # logfile.close()
 
 
 
@@ -128,7 +124,7 @@ if __name__ == '__main__':
                 }"""
 
     url = 'http://linksmart:8082/'
-
+    url = 'http://localhost:8082/'
     while True:
         try:
             x = requests.post(url, myobj)
