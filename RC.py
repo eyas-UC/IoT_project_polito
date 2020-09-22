@@ -77,7 +77,7 @@ class Resource_cat:
 
 if __name__ == '__main__':
     Res = {"outer_part": "hello",
-           "list_of_RCs": [{"id": 623, "name": "push button", "Updated": time.ctime(time.time())}]}
+           "list_of_RCs": [{ "name": "push button","ID": 623,"protocol": "MQTT/REST","URL":"url/broker URL", "Updated": time.ctime(time.time())}]}
 
     with open('logfile.json', 'w') as logfile:
         json.dump(Res, logfile)
