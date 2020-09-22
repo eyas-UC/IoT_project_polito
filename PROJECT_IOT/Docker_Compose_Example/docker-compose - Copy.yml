@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+
+  stock_market:
+    build:
+      context:  ./service
+      dockerfile: Dockerfile_service
+      args:
+        - PYTHON_VERSION=3.7.0-alpine3.8
+
+    ports:
+      - 8080:8080
+    stdin_open: true
+    tty: true
+    networks:
+      - iotnet
+
+  appa:
+    build:
+      context:  ./client
+      dockerfile: Dockerfile_client
+      args:
+        - PYTHON_VERSION=3.7.0-alpine3.8
+    stdin_open: true
+    tty: true
+    networks:
+      - iotnet
+
+  imager:
+    build:
+      context:  ./im_cap
+      dockerfile: Dockerfile_im_cap
+      args:
+        - PYTHON_VERSION=3.7-slim-stretch
+    ports:
+      - 8090:8090
+    stdin_open: true
+    tty: true
+    networks:
+      - iotnet
+
+
+  resource_catalog:
+    build:
+      context:  ./resource_catalog
+      dockerfile: Dockerfile_rc
+      args:
+        - PYTHON_VERSION=3.7.0-alpine3.8
+    ports:
+      - 8087:8087
+    stdin_open: true
+    tty: true
+    networks:
+      - iotnet
+
+networks:
+  iotnet:
+
+

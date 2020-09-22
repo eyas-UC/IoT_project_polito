@@ -82,8 +82,8 @@ if __name__ == '__main__':
               "ttl": 3
             }"""
 
-    # url = 'http://linksmart:8082/' #when using docker container
-    url = 'http://localhost:8082/'
+    url = 'http://linksmart:8082/' #when using docker container
+    #url = 'http://localhost:8082/'
     while True:
         try:
             # print('ok')
