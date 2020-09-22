@@ -6,34 +6,7 @@ import numpy as np
 import sys
 import hashlib
 
-myobj = """{
-              "type": "post_test",
-              "title": "post_test",
-              "description": "put_put",
-              "meta": {},
-              "apis": [
-                {
-                  "id": "2",
-                  "title": "3",
-                  "description": "string", 
-                  "protocol": "string",
-                  "url": "localhost:8090",
-                  "spec": {
-                    "mediaType": "string",
-                    "url": "string",
-                    "schema": {}
-                  },
-                  "meta": {}
-                }
-              ],
-              "doc": "string",
-              "ttl": 3
-            }"""
 
-url = 'http://linksmart:8082/'
-
-
-# url = 'http://localhost:8082/'
 class HelloWorld(object):
     exposed = True
 
@@ -80,10 +53,36 @@ if __name__ == '__main__':
     }
     cherrypy.tree.mount(HelloWorld(), '/', conf)
     cherrypy.config.update({'server.socket_host': '0.0.0.0'})
-    # cherrypy.config.update({'server.socket_host': 'localhost'})
-    
     cherrypy.config.update({'server.socket_port': 8088})
     cherrypy.engine.start()
+
+
+    myobj = """{
+              "type": "REST_API",
+              "title": "image_capture",
+              "description": "capturing image",
+              "meta": {},
+              "apis": [
+                {
+                  "id": "2",
+                  "title": "im_cap",
+                  "description": "string", 
+                  "protocol": "string",
+                  "url": "localhost:8088",
+                  "spec": {
+                    "mediaType": "string",
+                    "url": "string",
+                    "schema": {}
+                  },
+                  "meta": {}
+                }
+              ],
+              "doc": "string",
+              "ttl": 3
+            }"""
+
+    url = 'http://linksmart:8082/' #when using docker container
+# url = 'http://localhost:8082/'
     while True:
         try:
             x = requests.post(url, myobj)

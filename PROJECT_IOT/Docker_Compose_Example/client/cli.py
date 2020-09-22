@@ -9,7 +9,7 @@ if __name__ == '__main__':
 	while True:
 		try:
 			r = requests.get(url).text
-			print('succeeded')
+			#print('succeeded')
 		except:
-			print('failed')
+			#print('failed')
 		time.sleep(1)

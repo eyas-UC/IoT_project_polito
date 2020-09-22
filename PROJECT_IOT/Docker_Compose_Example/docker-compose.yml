@@ -2,20 +2,19 @@ version: '3'
 
 services:
 
-  appb:
+  stock_market:
     build:
       context:  ./service
       dockerfile: Dockerfile_service
       args:
         - PYTHON_VERSION=3.7.0-alpine3.8
 
-
     ports:
       - 8080:8080
     stdin_open: true
     tty: true
     networks:
-      - mynet
+      - iotnet
 
   appa:
     build:
@@ -26,7 +25,7 @@ services:
     stdin_open: true
     tty: true
     networks:
-    - mynet
+      - iotnet
 
   imager:
     build:
@@ -39,9 +38,23 @@ services:
     stdin_open: true
     tty: true
     networks:
-    - mynet
+      - iotnet
+
+
+  resource_catalog:
+    build:
+      context:  ./resource_catalog
+      dockerfile: Dockerfile_rc
+      args:
+        - PYTHON_VERSION=3.7.0-alpine3.8
+    ports:
+      - 8087:8087
+    stdin_open: true
+    tty: true
+    networks:
+      - iotnet
 
 networks:
-  mynet:
+  iotnet:
 
 
