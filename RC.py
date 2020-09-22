@@ -50,17 +50,23 @@ class Resource_cat:
         with open('logfile.json', 'r') as logfile:
             json_file = json.load(logfile)
         logfile.close()
-        Resources_list= json_file["list_of_RCs"]
-        for R in Resources_list:
+        resources_list= json_file["list_of_RCs"]
+        for R in resources_list:
             if dict['name']==R['name']:
                 print('\n\n found it\n \n')
-                print(Resources_list.index(R))
+                print(resources_list.index(R))
 
                 R = dict
                 R['Updated'] = (time.ctime(time.time()))
-                Resources_list[1]=dict
-        print(Resources_list)
-        return str(Resources_list)
+                resources_list[1]=dict
+        print(resources_list)
+        json_file['list_of_RCs'] = resources_list
+        print(json_file)
+        # backing things up
+        with open('logfile.json', 'w') as logfile:
+            json.dump(json_file, logfile)
+        logfile.close()
+        return str(resources_list)
 
 
 
