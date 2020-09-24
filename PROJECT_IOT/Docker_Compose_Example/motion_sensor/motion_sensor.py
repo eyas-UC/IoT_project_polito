@@ -3,6 +3,8 @@ import time
 import RPi.GPIO as GPIO
 import time
 import json
+import requests
+from threading import *
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
@@ -81,20 +83,72 @@ class client():
         print('disconnect gracefully')
 
 
+class  rc_registration_thread(Thread):
+    def __init__(self, thread_ID):
+        Thread.__init__(self)
+        self.thread_ID = thread_ID
+        url ="http://localhost:8087"
+        url ="http://localhost:8087/"
+        myobj ='{ "name": "test01","ID": 1,"protocol": "REST","URL":"url", "Updated": "temp"}'
+    def run(self):
+        while True:
+            try:
+                url ="http://localhost:8087/"
+                myobj ='{ "name": "test01","ID": 1,"protocol": "REST","URL":"url", "Updated": "temp"}'
+                print('ok')
+                x = requests.post(url, myobj)
+                print(x)
+                print('ok1')
+                #ID = json.loads(x.text)['id']
+                #print(f'id is {ID}')
+                print('registration succeeded\n')
+
+
+                while True:
+                    try:
+                        x = requests.put(url, myobj)
+                        #ID = json.loads(x.text)['id']
+                        print('update succeeded\n')
+                        time.sleep(5)
+
+                    except:
+                        print('update failed with the host')
+
+            except:
+                print('registration failed with the host')
+                time.sleep(5)
+
+
+
+class publish_thread(Thread):
+    def __init__(self, thread_ID):
+        Thread.__init__(self)
+        self.thread_ID = thread_ID
+    def run(self):
+        while True:
+            i = GPIO.input(7)
+            if i ==1:
+                output = f'movement 1 and {time.ctime(time.time())}'
+                sensor1.mypub(json_data['topic'],output)
+                time.sleep(2)
+            elif i == 0 :
+                output = f'no movement 0 and {time.ctime(time.time())}'
+                sensor1.mypub(json_data['topic'],output)
+                time.sleep(2)
+
+
+
 if __name__ == '__main__':
     sensor_id = json_data['sensor_ID']
     broker = json_data['URL']
     broker_port = json_data['port']
     sensor1 = client(sensor_id,broker,broker_port)
     sensor1.start()
+    a1 = publish_thread(1)
+    a2 = rc_registration_thread(2)
+    a1.start()
+    a2.start()
+    a1.join()
+    a2.join()
     
-    while True:
-        i = GPIO.input(7)
-        if i ==1:
-            output = f'movement 1 and {time.ctime(time.time())}'
-            sensor1.mypub(json_data['topic'],output)
-            time.sleep(0.5)
-        elif i == 0 :
-            output = f'no movement 0 and {time.ctime(time.time())}'
-            sensor1.mypub(json_data['topic'],output)
-            time.sleep(0.5)
+
