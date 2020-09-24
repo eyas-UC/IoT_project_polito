@@ -83,7 +83,7 @@ if __name__ == '__main__':
             }"""
 
     url = 'http://linksmart:8082/' #when using docker container
-    #url = 'http://localhost:8082/'
+    #url = 'http://localhost:8082/' # in the host
     while True:
         try:
             # print('ok')
@@ -92,6 +92,8 @@ if __name__ == '__main__':
             ID = json.loads(x.text)['id']
             print(f'id is {ID}')
             print('registration succeeded\nID is {}'.format(ID))
+
+
             while True:
                 try:
                     x = requests.put(url + ID, myobj)
