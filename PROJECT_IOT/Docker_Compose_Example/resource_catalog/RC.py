@@ -77,6 +77,27 @@ class Resource_cat:
         logfile.close()
         return str(resources_list)
 
+    def DELETE(self,*uri):
+        #get data from DEL request body
+        print('1')
+        with open('logfile.json', 'r') as logfile:
+            json_file = json.load(logfile)
+        logfile.close()
+        resources_list = json_file["list_of_RCs"]
+        for R in resources_list:
+            #removing only the first name that match
+            if R['name'] == uri[0]:
+                print(resources_list)
+                resources_list.remove(R)
+                print(resources_list)
+        # backing things up
+        with open('logfile.json', 'w') as logfile:
+            json.dump(json_file, logfile)
+        logfile.close()
+        return str(resources_list)
+
+
+
 
 
 
