@@ -21,7 +21,7 @@ class Resource_cat:
         data=to_add.decode('utf-8')
         dict = json.loads(data)
         # print(dict)
-        dict['Updated'] = str(time.time())
+        dict['Updated'] = (time.time())
         # print(dict)
 
 
@@ -60,7 +60,7 @@ class Resource_cat:
                 RC_list_index =resources_list.index(R)
 
                 R = dict
-                R['Updated'] = str((time.time()))
+                R['Updated'] = ((time.time()))
                 # print('ok01')
                 # print(RC_list_index)
                 # print(type((RC_list_index)))
@@ -166,7 +166,7 @@ class delete_thread(Thread):
                 resources_list = x['list_of_RCs']
                 print(resources_list)
                 for R in resources_list:
-                    if time.time() - float(R['Updated']) > 5:
+                    if time.time() - (R['Updated']) > 5:
                         print(f'deleting one service\n{R["name"]}')
                         requests.delete('http://localhost:8087'+'/'+R['name'])
                         print('deleted successfully')
