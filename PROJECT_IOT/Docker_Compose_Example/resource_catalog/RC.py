@@ -158,19 +158,31 @@ class delete_thread(Thread):
         Thread.__init__(self)
         self.thread_ID = thread_ID
     def run(self):
+        #time.sleep(10)
         while True:
             x= requests.get("http://localhost:8087").json()
-            if x['list_of_RCs'] == []:
+            time.sleep(3)
+            #print(x)
+            #print(type(x))
+            #x=json.loads(x)
+            print(x)
+            print(type(x))
+            resources_list = x['list_of_RCs']
+            print(resources_list)
+            if not resources_list:
+                
                 pass
             else:
-                resources_list = x['list_of_RCs']
                 print(resources_list)
                 for R in resources_list:
-                    if time.time() - (R['Updated']) > 5:
+                    print('\n \ntype check')
+                    print(type (   time.time()  )   )
+                    print( type(float(R['Updated'] ))  )
+                    if time.time() -(float(R['Updated'])) > 5:
                         print(f'deleting one service\n{R["name"]}')
                         requests.delete('http://localhost:8087'+'/'+R['name'])
                         print('deleted successfully')
-            time.sleep(2)
+            time.sleep(8)
 
 
 
