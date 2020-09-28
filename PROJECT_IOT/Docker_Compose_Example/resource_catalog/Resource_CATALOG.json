@@ -1,0 +1,23 @@
+{
+                          "type": "REST_API",
+                          "title": "Resource_CATALOG",
+                          "description": "RC",
+                          "meta": {},
+                          "apis": [
+                            {
+                              "id": "3",
+                              "title": "RC",
+                              "description": "none",
+                              "protocol": "REST",
+                              "url": "http://localhost:8087",
+                              "spec": {
+                                "mediaType": "JSON",
+                                "url": "http://RC:8087",
+                                "schema": {}
+                              },
+                              "meta": {}
+                            }
+                          ],
+                          "doc": "http://RC:8097",
+                          "ttl": 3
+                        }

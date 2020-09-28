@@ -3,15 +3,66 @@ import time
 import json
 import requests
 from threading import *
+import registration  as reg
+
+class Resource:
+    def __init__(self):
+        pass
+    def add_resource(self,dict):
+        json_file = self.show_resource()
+        json_file["list_of_RCs"].append(dict)
+        with open('logfile.json', 'w') as logfile:
+            json.dump(json_file, logfile)
+        logfile.close()
+
+    def show_resource(self):
+        with open('logfile.json', 'r') as logfile:
+            json_file = json.load(logfile)
+        logfile.close()
+        return json_file
+    def update_resource(self,dict):
+        json_file = self.show_resource()
+        # get the list of resources from the json-formatted log file
+        resources_list= json_file["list_of_RCs"]
+        for R in resources_list:
+            if dict['name']==R['name']:
+                # print('\n\n found it\n \n')
+                RC_list_index =resources_list.index(R)
+                R = dict
+                R['Updated'] = ((time.time()))
+                resources_list[RC_list_index]=dict
+
+        with open('logfile.json', 'w') as logfile:
+            json.dump(json_file, logfile)
+        logfile.close()
+    def delete_resource(self,name):
+        # get data from DEL request body
+        json_file = self.show_resource()
+        resources_list = json_file["list_of_RCs"]
+        for R in resources_list:
+            # removing only the first name that match
+            if R['name'] == name:
+                # print(resources_list)
+                resources_list.remove(R)
+                # print(resources_list)
+        # backing things up
+        with open('logfile.json', 'w') as logfile:
+            json.dump(json_file, logfile)
+        logfile.close()
+
 
 
 class Resource_cat:
     exposed = True
 
-    def GET(self, *uri, **params):
-        with open('logfile.json', 'r') as logfile:
-            json_file = json.load(logfile)
-        logfile.close()
+    def __init__(self):
+        self.CAT = Resource()
+        self.CAT.show_resource()
+
+
+
+    def GET(self):
+        json_file = self.CAT.show_resource()
         # print(json_file)
         return json.dumps(json_file)
     # maybe implement a filter using URI (future work)
@@ -21,21 +72,12 @@ class Resource_cat:
         to_add= cherrypy.request.body.read()
         data=to_add.decode('utf-8')
         dict = json.loads(data)
-        # print(dict)
+        #updating time
         dict['Updated'] = (time.time())
-        # print(dict)
-
-
-        with open('logfile.json', 'r') as logfile:
-            json_file = json.load(logfile)
-        logfile.close()
-        json_file["list_of_RCs"].append(dict)
-        # print(json_file)
-        resources_list = json_file["list_of_RCs"]
-        with open('logfile.json', 'w') as logfile:
-            json.dump(json_file, logfile)
-        logfile.close()
-
+        #adding the new resource to the log file
+        self.CAT.add_resource(dict)
+        # returning the new updated resource catalog json file
+        json_file = self.CAT.show_resource()
         return json.dumps(json_file)
 
 
@@ -45,58 +87,18 @@ class Resource_cat:
         data = to_edit.decode('utf-8')
         dict = json.loads(data)
 
-        # get data from registered resources
-        with open('logfile.json', 'r') as logfile:
-            json_file = json.load(logfile)
-        logfile.close()
-
-
-        # get the list of resources from the json-formatted log file
-        resources_list= json_file["list_of_RCs"]
-
-
-        for R in resources_list:
-            if dict['name']==R['name']:
-                # print('\n\n found it\n \n')
-                RC_list_index =resources_list.index(R)
-
-                R = dict
-                R['Updated'] = ((time.time()))
-                # print('ok01')
-                # print(RC_list_index)
-                # print(type((RC_list_index)))
-                resources_list[RC_list_index]=dict
-                # print('ok02')
-
-
-        print(resources_list)
-        json_file['list_of_RCs'] = resources_list
-        # print(json_file)
-
-        # backing things up
-        with open('logfile.json', 'w') as logfile:
-            json.dump(json_file, logfile)
-        logfile.close()
+        self.CAT.update_resource(dict)
+        json_file = self.CAT.show_resource()
         return json.dumps(json_file)
 
     def DELETE(self,*uri):
         #get data from DEL request body
-        print('1')
-        with open('logfile.json', 'r') as logfile:
-            json_file = json.load(logfile)
-        logfile.close()
+        json_file = self.CAT.show_resource()
         resources_list = json_file["list_of_RCs"]
-        for R in resources_list:
-            #removing only the first name that match
-            if R['name'] == uri[0]:
-                # print(resources_list)
-                resources_list.remove(R)
-                # print(resources_list)
-        # backing things up
-        with open('logfile.json', 'w') as logfile:
-            json.dump(json_file, logfile)
-        logfile.close()
-        return str(resources_list)
+        name_to_be_removed = uri[0]
+        self.CAT.delete_resource(name_to_be_removed)
+        json_file = self.CAT.show_resource()
+        return json.dumps(json_file)
 
 
 class  sc_registration_thread(Thread):
@@ -160,7 +162,7 @@ if __name__ == '__main__':
     # with open('logfile.json', 'w') as logfile:
     #     json.dump(Res, logfile)
     # logfile.close()
-
+    #
     conf = {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
     cherrypy.tree.mount(Resource_cat(), '/', conf)
     cherrypy.config.update({'server.socket_host': '0.0.0.0'})
@@ -173,3 +175,9 @@ if __name__ == '__main__':
     a1.join()
     a2.join()
     #cherrypy.engine.exit()
+    #
+    # R = Resource()
+    # print(R.show_resource() )
+    # dict = ({"name": "camera", "ID": 1, "protocol": "REST", "URL": "url", "Updated": 1601077207.2971442})
+    # R.add_resource(dict)
+    # print(R.show_resource())
