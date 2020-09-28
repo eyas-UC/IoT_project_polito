@@ -1,0 +1,23 @@
+{
+              "type": "service",
+              "title": "Telegram_bot",
+              "description": "put_put",
+              "meta": {},
+              "apis": [
+                {
+                  "id": "2",
+                  "title": "3",
+                  "description": "string", 
+                  "protocol": "string",
+                  "url": "localhost:8090",
+                  "spec": {
+                    "mediaType": "string",
+                    "url": "string",
+                    "schema": {}
+                  },
+                  "meta": {}
+                }
+              ],
+              "doc": "string",
+              "ttl": 3
+            }
