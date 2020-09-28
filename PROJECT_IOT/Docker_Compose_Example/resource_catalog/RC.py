@@ -3,6 +3,7 @@ import time
 import json
 import requests
 from threading import *
+import registration as reg
 
 class Resource_cat:
     exposed = True
