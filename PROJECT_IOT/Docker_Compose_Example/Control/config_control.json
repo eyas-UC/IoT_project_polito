@@ -1,0 +1,23 @@
+{
+                          "type": "REST_API",
+                          "title": "control",
+                          "description": "control the operation of the system",
+                          "meta": {},
+                          "apis": [
+                            {
+                              "id": "4",
+                              "title": "Control",
+                              "description": "none",
+                              "protocol": "REST",
+                              "url": "http://localhost:8084",
+                              "spec": {
+                                "mediaType": "JSON",
+                                "url": "http://control:8084",
+                                "schema": {}
+                              },
+                              "meta": {}
+                            }
+                          ],
+                          "doc": "http://control:8084",
+                          "ttl": 4
+                        }
