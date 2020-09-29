@@ -5,7 +5,7 @@ import requests
 import numpy as np
 import sys
 import hashlib
-import json
+import registration as reg
 
 
 class HelloWorld(object):
@@ -58,55 +58,11 @@ if __name__ == '__main__':
     cherrypy.engine.start()
 
 
-    myobj = """{
-              "type": "REST_API",
-              "title": "image_capture",
-              "description": "capturing image",
-              "meta": {},
-              "apis": [
-                {
-                  "id": "2",
-                  "title": "im_cap",
-                  "description": "string", 
-                  "protocol": "string",
-                  "url": "localhost:8088",
-                  "spec": {
-                    "mediaType": "string",
-                    "url": "string",
-                    "schema": {}
-                  },
-                  "meta": {}
-                }
-              ],
-              "doc": "string",
-              "ttl": 3
-            }"""
-
     url = 'http://linksmart:8082/' #when using docker container
     #url = 'http://localhost:8082/' # in the host
-    while True:
-        try:
-            # print('ok')
-            x = requests.post(url, myobj)
-            # print('ok1')
-            ID = json.loads(x.text)['id']
-            print(f'id is {ID}')
-            print('registration succeeded\nID is {}'.format(ID))
+    reg.registration('im_cap.txt',url)
 
-
-            while True:
-                try:
-                    x = requests.put(url + ID, myobj)
-                    ID = json.loads(x.text)['id']
-                    print('update succeeded\nID is {}'.format(ID))
-                    time.sleep(5)
-
-                except:
-                    print('update failed with the host')
-
-        except:
-            print('registration failed with the host')
-            time.sleep(5)
+    
 
     cherrypy.engine.exit()
 

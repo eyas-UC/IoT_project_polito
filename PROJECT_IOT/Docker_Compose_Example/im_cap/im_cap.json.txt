@@ -1,0 +1,23 @@
+{
+              "type": "REST_API",
+              "title": "image_capture",
+              "description": "capturing image",
+              "meta": {},
+              "apis": [
+                {
+                  "id": "2",
+                  "title": "im_cap",
+                  "description": "string", 
+                  "protocol": "string",
+                  "url": "localhost:8088",
+                  "spec": {
+                    "mediaType": "string",
+                    "url": "string",
+                    "schema": {}
+                  },
+                  "meta": {}
+                }
+              ],
+              "doc": "string",
+              "ttl": 3
+            }
