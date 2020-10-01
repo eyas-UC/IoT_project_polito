@@ -111,8 +111,8 @@ class  sc_registration_thread(Thread):
     def run(self):
         # registering and updating of the registration
 
-        url = 'http://linksmart:8082/'  # when using a docker container
-        # url = 'http://localhost:8082/' #
+        # url = 'http://linksmart:8082/'  # when using a docker container
+        url = 'http://localhost:8082/' #
         
         reg.registration('Resource_CATALOG.json', url)
 
