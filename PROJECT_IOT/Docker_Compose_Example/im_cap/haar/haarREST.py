@@ -24,7 +24,7 @@ class HaarREST(object):
 				if S['title'] == 'RC':
 					print('the resource catalog is working\nfinding the camera...')
 					self.resources_list = r_search()
-					print(self.resources_list)
+					# print(self.resources_list)
 					for R in self.resources_list:
 						if R['resource_name'] == 'camera01':
 							self.cameral_url = R['URL']
@@ -49,9 +49,9 @@ class HaarREST(object):
 				data = requests.get(self.cameral_url).content #retrieving data from im_cap.py [string]
 
 				my_array = s2n.string2numpy(data)
-				# cv2.imshow('Color image', my_array)
-				# cv2.waitKey(5000)
-				# cv2.destroyAllWindows()
+				cv2.imshow('Color image', my_array)
+				cv2.waitKey(5000)
+				cv2.destroyAllWindows()
 
 				#print(hashlib.md5(strr.encode('utf-8')).hexdigest())
 				#print(my_array.shape)

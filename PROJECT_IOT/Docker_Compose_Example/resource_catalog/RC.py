@@ -7,47 +7,58 @@ import registration  as reg
 
 class Resource:
     def __init__(self):
-        pass
+        self.show_resource()
+
     def add_resource(self,dict):
-        json_file = self.show_resource()
-        json_file["list_of_RCs"].append(dict)
+        self.show_resource()
+        # self.json_file  is updated
+        self.resources_list.append(dict)
+        print(self.resources_list)
         with open('logfile.json', 'w') as logfile:
-            json.dump(json_file, logfile)
+            json.dump(self.json_file, logfile)
         logfile.close()
 
     def show_resource(self):
-        with open('logfile.json', 'r') as logfile:
-            json_file = json.load(logfile)
-        logfile.close()
-        return json_file
+        try:
+            with open('logfile.json', 'r') as logfile:
+                self.json_file = json.load(logfile)
+            logfile.close()
+            self.resources_list = self.json_file["list_of_RCs"]
+        except:
+            reset_str = {"outer_part": "hello", "list_of_RCs": []}
+            print(type(reset_str))
+            print('error in config file now resetting it...')
+            with open('logfile.json', 'w') as logfile:
+                self.json_file = json.dump(reset_str,logfile)
+                logfile.close()
+
+
     def update_resource(self,dict):
-        json_file = self.show_resource()
+        self.show_resource()
         # get the list of resources from the json-formatted log file
-        resources_list= json_file["list_of_RCs"]
-        for R in resources_list:
+        for R in self.resources_list:
             if dict['resource_name']==R['resource_name']:
                 # print('\n\n found it\n \n')
-                RC_list_index =resources_list.index(R)
+                RC_list_index =self.resources_list.index(R)
                 R = dict
                 R['Updated'] = ((time.time()))
-                resources_list[RC_list_index]=dict
+                self.resources_list[RC_list_index]=dict
 
         with open('logfile.json', 'w') as logfile:
-            json.dump(json_file, logfile)
+            json.dump(self.json_file, logfile)
         logfile.close()
     def delete_resource(self,name):
         # get data from DEL request body
-        json_file = self.show_resource()
-        resources_list = json_file["list_of_RCs"]
-        for R in resources_list:
+        self.show_resource()
+        for R in self.resources_list:
             # removing only the first name that match
             if R['resource_name'] == name:
                 # print(resources_list)
-                resources_list.remove(R)
+                self.resources_list.remove(R)
                 # print(resources_list)
         # backing things up
         with open('logfile.json', 'w') as logfile:
-            json.dump(json_file, logfile)
+            json.dump(self.json_file, logfile)
         logfile.close()
 
 
@@ -57,14 +68,14 @@ class Resource_cat:
 
     def __init__(self):
         self.CAT = Resource()
-        self.CAT.show_resource()
 
 
 
     def GET(self):
-        json_file = self.CAT.show_resource()
+        # self.CAT.json_file  will be updated
+        self.CAT.show_resource()
         # print(json_file)
-        return json.dumps(json_file)
+        return json.dumps(self.CAT.json_file)
     # maybe implement a filter using URI (future work)
 
     def POST(self):
@@ -77,8 +88,8 @@ class Resource_cat:
         #adding the new resource to the log file
         self.CAT.add_resource(dict)
         # returning the new updated resource catalog json file
-        json_file = self.CAT.show_resource()
-        return json.dumps(json_file)
+        self.CAT.json_file = self.CAT.show_resource()
+        return json.dumps(self.CAT.json_file)
 
 
     def PUT(self):
@@ -88,17 +99,16 @@ class Resource_cat:
         dict = json.loads(data)
 
         self.CAT.update_resource(dict)
-        json_file = self.CAT.show_resource()
-        return json.dumps(json_file)
+        self.CATjson_file = self.CAT.show_resource()
+        return json.dumps(self.CAT.json_file)
 
     def DELETE(self,*uri):
         #get data from DEL request body
-        json_file = self.CAT.show_resource()
-        resources_list = json_file["list_of_RCs"]
+        self.CAT.show_resource()
         name_to_be_removed = uri[0]
         self.CAT.delete_resource(name_to_be_removed)
-        json_file = self.CAT.show_resource()
-        return json.dumps(json_file)
+        self.CAT.show_resource()
+        return json.dumps(self.CAT.json_file)
 
 
 class  sc_registration_thread(Thread):
@@ -140,7 +150,7 @@ class delete_thread(Thread):
                     # print('\n \ntype check')
                     # print(type (   time.time()  )   )
                     # print( type(float(R['Updated'] ))  )
-                    if time.time() -(float(R['Updated'])) > 5.5:
+                    if time.time() -(float(R['Updated'])) > 8:
                         print(f'deleting one service\n{R["resource_name"]}')
                         requests.delete('http://localhost:8087'+'/'+R['resource_name'])
                         print('deleted successfully')
