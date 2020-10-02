@@ -1,5 +1,5 @@
 {
-  "description": "eFactory Data Spine Service Registry",
+  "description": "Service_CAT",
   "dnssdEnabled": false,
   "storage": {
     "type": "leveldb",
@@ -11,8 +11,8 @@
   },
   "mqtt":{
     "client" : {
-      "brokerID": "MQTT_ newlink",
-      "brokerURI": "test.mosquitto.org",
+      "brokerID": "MQTT_newlink",
+      "brokerURI": "192.168.1.151",
       "regTopics": [],
       "willTopics": [],
       "qos": 1,

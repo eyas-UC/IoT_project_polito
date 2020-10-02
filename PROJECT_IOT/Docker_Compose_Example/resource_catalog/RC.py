@@ -25,7 +25,7 @@ class Resource:
         # get the list of resources from the json-formatted log file
         resources_list= json_file["list_of_RCs"]
         for R in resources_list:
-            if dict['name']==R['name']:
+            if dict['resource_name']==R['resource_name']:
                 # print('\n\n found it\n \n')
                 RC_list_index =resources_list.index(R)
                 R = dict
@@ -41,7 +41,7 @@ class Resource:
         resources_list = json_file["list_of_RCs"]
         for R in resources_list:
             # removing only the first name that match
-            if R['name'] == name:
+            if R['resource_name'] == name:
                 # print(resources_list)
                 resources_list.remove(R)
                 # print(resources_list)
@@ -112,8 +112,7 @@ class  sc_registration_thread(Thread):
         # registering and updating of the registration
 
         # url = 'http://linksmart:8082/'  # when using a docker container
-        url = 'http://localhost:8082/' #
-        
+        url = 'http://localhost:8082/'
         reg.registration('Resource_CATALOG.json', url)
 
 class delete_thread(Thread):
@@ -128,22 +127,22 @@ class delete_thread(Thread):
             #print(x)
             #print(type(x))
             #x=json.loads(x)
-            print(x)
-            print(type(x))
+            # print(x)
+            # print(type(x))
             resources_list = x['list_of_RCs']
-            print(resources_list)
+            # print(resources_list)
             if not resources_list:
                 
                 pass
             else:
                 print(resources_list)
                 for R in resources_list:
-                    print('\n \ntype check')
-                    print(type (   time.time()  )   )
-                    print( type(float(R['Updated'] ))  )
-                    if time.time() -(float(R['Updated'])) > 5:
-                        print(f'deleting one service\n{R["name"]}')
-                        requests.delete('http://localhost:8087'+'/'+R['name'])
+                    # print('\n \ntype check')
+                    # print(type (   time.time()  )   )
+                    # print( type(float(R['Updated'] ))  )
+                    if time.time() -(float(R['Updated'])) > 10:
+                        print(f'deleting one service\n{R["resource_name"]}')
+                        requests.delete('http://localhost:8087'+'/'+R['resource_name'])
                         print('deleted successfully')
             time.sleep(8)
 

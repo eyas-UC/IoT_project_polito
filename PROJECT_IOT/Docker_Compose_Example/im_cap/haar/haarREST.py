@@ -6,16 +6,26 @@ import json
 import cherrypy
 import registration as reg
 import string2numpy as s2n
+import service_search
 
 class HaarREST(object):
 	exposed = True
 	def __init__(self):
-		pass
+		try:
+			#get list of services
+			self.service_list = service_search.search('http://localhost:8082')
+			print(self.service_list)
+		except:
+			print('cannot connect to linksmart')
+
+
+
 
 	def GET(self):
 		try:
 			face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 			np.set_printoptions(threshold=sys.maxsize)
+
 			
 			data = requests.get('http://127.1.1.2:8088').content #retrieving data from im_cap.py [string]
 			
@@ -57,8 +67,8 @@ if __name__ == '__main__':
 	cherrypy.tree.mount(Haar, '/', conf)
 	cherrypy.engine.start()
 
-	#url = 'http://linksmart:8082/'
-	url = 'http://localhost:8087/'
+	# url = 'http://linksmart:8082/'
+	url = 'http://localhost:8082/'
 
 	reg.registration('haar.json', url)
 

@@ -58,9 +58,9 @@ if __name__ == '__main__':
     cherrypy.engine.start()
 
 
-    url = 'http://linksmart:8082/' #when using docker container
-    #url = 'http://localhost:8082/' # in the host
-    reg.registration('im_cap.txt',url)
+    # url = 'http://linksmart:8082/' #when using docker container
+    url = 'http://localhost:8087/' # in the host
+    reg.registration('im_cap.json',url)
 
     
 

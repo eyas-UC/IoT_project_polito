@@ -1,0 +1,11 @@
+{                 "resource_name": "motion_sensor",
+                  "type": "MQTT",
+                  "topic":"sens",
+                  "sensor_ID":"mot_sen_01",
+                  "description": "discription here",
+                  "meta": {},
+                  "URL": "test.mosquitto.org",
+                  "port" :1883,
+                  "pin_number":7
+
+                }

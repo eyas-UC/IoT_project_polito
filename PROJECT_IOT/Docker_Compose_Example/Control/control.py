@@ -40,17 +40,31 @@ class Controller:
 
         self.active_services_list = service_search.search(self.service_catalog_url)
         return (self.active_services_list)
-    def init_rc(self):
-        for S in self.active_services_list:
-            if S['id'] == 'RC'
-        for S in self.active_services_list:
-            if S['apis'][0]['protocol'] == 'MQTT':
-                self.sub
-                pass
-        self.haar_output = requests.get()
+    def update_resources(self):
+        # the resources should include motion sensor, camera, LED, and push button
+        try:
+            self.get_ser_urls()
+            # print(self.active_services_list) # for debugging
+            for S in self.active_services_list:
+                #
+                if S['title'] == 'RC':
+                    url = S['apis'][0]['url']
+                    x = requests.get(url).json()
+                    self.active_resources_list = x["list_of_RCs"]
+                    # print(f'list of the active resources {self.active_resources_list}')
+        except:
+            print('could not update resources')
+
+
+
+        # for S in self.active_services_list:
+        #     if S['apis'][0]['protocol'] == 'MQTT':
+        #         self.sub
+        #         pass
+        # self.haar_output = requests.get()
 
     def logic(self):
-        # if haar_output
+
         pass
 
 
@@ -68,3 +82,5 @@ class Controller:
 
 
 a_a = Controller()
+print(a_a.get_ser_urls())
+a_a.update_resources()
