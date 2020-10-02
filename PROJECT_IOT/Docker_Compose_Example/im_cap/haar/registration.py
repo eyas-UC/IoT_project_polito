@@ -11,7 +11,7 @@ def registration(json_file, url,id=None):
     while True:
         try:
             services_list = (search(url))
-            print(services_list)
+            # print(services_list)
             for S in services_list:
                 if S['id'] == id:
                     print('no need to post')

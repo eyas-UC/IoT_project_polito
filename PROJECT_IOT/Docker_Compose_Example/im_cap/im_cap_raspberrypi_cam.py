@@ -93,24 +93,5 @@ if __name__ == '__main__':
     
     cherrypy.config.update({'server.socket_port': 8091})
     cherrypy.engine.start()
-    while True:
-        try:
-            x = requests.post(url, myobj)
-            ID = json.loads(x.text)['id']
-            print(f'id is {ID}')
-            print('registration succeeded\nID is {}'.format(ID))
-            while True:
-                try:
-                    x = requests.put(url + ID, myobj)
-                    ID = json.loads(x.text)['id']
-                    print('update succeeded\nID is {}'.format(ID))
-                    time.sleep(5)
-
-                except:
-                    print('update failed with the host')
-
-        except:
-            #print('registration failed with the host')
-            time.sleep(1)
-
-    cherrypy.engine.exit()
+    url = 'http://localhost:8087/'  # in the host
+    reg.registration('im_cap.json', url)

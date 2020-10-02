@@ -140,7 +140,7 @@ class delete_thread(Thread):
                     # print('\n \ntype check')
                     # print(type (   time.time()  )   )
                     # print( type(float(R['Updated'] ))  )
-                    if time.time() -(float(R['Updated'])) > 10:
+                    if time.time() -(float(R['Updated'])) > 5.5:
                         print(f'deleting one service\n{R["resource_name"]}')
                         requests.delete('http://localhost:8087'+'/'+R['resource_name'])
                         print('deleted successfully')
