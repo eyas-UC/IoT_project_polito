@@ -13,7 +13,7 @@ class Resource:
         self.show_resource()
         # self.json_file  is updated
         self.resources_list.append(dict)
-        print(self.resources_list)
+        # print(self.resources_list)
         with open('logfile.json', 'w') as logfile:
             json.dump(self.json_file, logfile)
         logfile.close()
@@ -26,7 +26,7 @@ class Resource:
             self.resources_list = self.json_file["list_of_RCs"]
         except:
             reset_str = {"outer_part": "hello", "list_of_RCs": []}
-            print(type(reset_str))
+            # print(type(reset_str))
             print('error in config file now resetting it...')
             with open('logfile.json', 'w') as logfile:
                 self.json_file = json.dump(reset_str,logfile)
@@ -47,6 +47,7 @@ class Resource:
         with open('logfile.json', 'w') as logfile:
             json.dump(self.json_file, logfile)
         logfile.close()
+
     def delete_resource(self,name):
         # get data from DEL request body
         self.show_resource()
@@ -133,7 +134,7 @@ class delete_thread(Thread):
         #time.sleep(10)
         while True:
             x= requests.get("http://localhost:8087").json()
-            time.sleep(3)
+            time.sleep(15)
             #print(x)
             #print(type(x))
             #x=json.loads(x)
@@ -145,12 +146,12 @@ class delete_thread(Thread):
                 
                 pass
             else:
-                print(resources_list)
+                # print(resources_list)
                 for R in resources_list:
                     # print('\n \ntype check')
                     # print(type (   time.time()  )   )
                     # print( type(float(R['Updated'] ))  )
-                    if time.time() -(float(R['Updated'])) > 8:
+                    if time.time() -(float(R['Updated'])) > 20:
                         print(f'deleting one service\n{R["resource_name"]}')
                         requests.delete('http://localhost:8087'+'/'+R['resource_name'])
                         print('deleted successfully')
@@ -183,10 +184,3 @@ if __name__ == '__main__':
     a2.start()
     a1.join()
     a2.join()
-    #cherrypy.engine.exit()
-    #
-    # R = Resource()
-    # print(R.show_resource() )
-    # dict = ({"name": "camera", "ID": 1, "protocol": "REST", "URL": "url", "Updated": 1601077207.2971442})
-    # R.add_resource(dict)
-    # print(R.show_resource())
