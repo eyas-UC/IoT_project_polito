@@ -93,7 +93,7 @@ class Controller:
             print('the service catalog is down')
 
     def get_ser_urls(self):
-
+        # get the current active service lists
         self.active_services_list = service_search.search(self.service_catalog_url)
         print(self.active_services_list)
 
@@ -101,7 +101,7 @@ class Controller:
         # the resources should include motion sensor, camera, LED, and push button
         # updates the self.active_resources_list
         try:
-            self.get_ser_urls() # update active services list
+            self.get_ser_urls() # update active services list (default port of linksmart is 8082)
             # print(self.active_services_list) # for debugging
             for S in self.active_services_list:
                 #
@@ -120,12 +120,15 @@ class Controller:
         # self.haar_output = requests.get()
 
     def logic(self):
+        # conditions on when to take photo what happens when motion sensor is ON what happens
+        # if the push button is pressed.
         pass
 
     def action(self):
         pass
 
     def user_interface(self):
+        # integrate the telegram bot here
         pass
 
 
