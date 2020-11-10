@@ -3,7 +3,7 @@ import time
 import json
 import requests
 from threading import *
-import registration  as reg
+import registration as reg
 
 class Resource:
     def __init__(self):
@@ -70,8 +70,6 @@ class Resource_cat:
     def __init__(self):
         self.CAT = Resource()
 
-
-
     def GET(self):
         # self.CAT.json_file  will be updated
         self.CAT.show_resource()
@@ -113,18 +111,16 @@ class Resource_cat:
 
 
 class  sc_registration_thread(Thread):
+
     def __init__(self, thread_ID):
         Thread.__init__(self)
         self.thread_ID = thread_ID
-        url ="http://localhost:8087"
-        url ="http://localhost:8082/"
-
     def run(self):
         # registering and updating of the registration
-
         # url = 'http://linksmart:8082/'  # when using a docker container
         url = 'http://localhost:8082/'
-        reg.registration('Resource_CATALOG.json', url)
+        reg.registration('Resource_CATALOG.json', url,'RC')
+
 
 class delete_thread(Thread):
     def __init__(self, thread_ID):
@@ -143,7 +139,6 @@ class delete_thread(Thread):
             resources_list = x['list_of_RCs']
             # print(resources_list)
             if not resources_list:
-                
                 pass
             else:
                 # print(resources_list)
@@ -156,12 +151,6 @@ class delete_thread(Thread):
                         requests.delete('http://localhost:8087'+'/'+R['resource_name'])
                         print('deleted successfully')
             time.sleep(8)
-
-
-
-
-
-
 
 
 

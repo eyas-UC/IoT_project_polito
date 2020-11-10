@@ -1,8 +1,8 @@
-dict = {"outer_part": "hello", "list_of_RCs": [ {"resource_name": "motion01", "type": "MQTT", "topic": "home/motion01", "sensor_ID": "mot_sen_01", "description": "discription here", "meta": {}, "URL": "test.mosquitto.org", "port": 1883, "pin_number": 7, "Updated": 1601640224.1891172},{"resource_name": "led01", "type": "MQTT", "topic": "home/led01", "sensor_ID": "led_01", "description": "discription here", "meta": {}, "URL": "192.168.1.178", "port": 1883, "pin_number": 8, "Updated": 1601640221.8578188}]}
+import serial
 
-lista = dict['list_of_RCs']
-
-print(lista['resource_name'])
- # if 'motion01' in lista:
-
-
+ser = serial.Serial(port = 'com0com',baudrate=115200)  # open first serial port
+print (ser.portstr )      # check which port was really used
+ser.write("hello")      # write a string
+msg = ser.read(port ='com0com',baudrate=115200) #read the content of the input buffer until you get 100 byte or a timeout event
+print(msg) #print the content you might need to decode it print(decode(msg))
+ser.close()

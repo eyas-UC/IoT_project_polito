@@ -22,11 +22,15 @@ class HelloWorld(object):
                     np.set_printoptions(threshold=sys.maxsize)
                     #convert to grayscale (reduce size by 3)
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)                    # cv2.imshow('frame',frame)
-                    dsize = (300,200)                 
+                    dsize = (64,64)
                     gray = cv2.resize(gray, dsize)
-                    # print('safe02') 
-                    strrr=np.array_str(gray) 
-                    # print('safe03')
+                    print('safe02')
+                    # grey = grey.reshape(grey.shape)
+                    gray = gray.reshape(gray.shape[0], -1).T
+                    gray = (gray)*(1/255)
+                    strrr=np.array_str(gray)
+                    print(gray)
+                    print('safe03')
                     # print(strrr) 
                     print(hashlib.md5(strrr.encode('utf-8')).hexdigest())                  
                     # print(strrr)
@@ -56,11 +60,12 @@ if __name__ == '__main__':
     cherrypy.config.update({'server.socket_host': '0.0.0.0'})
     cherrypy.config.update({'server.socket_port': 8088})
     cherrypy.engine.start()
+    cherrypy.engine.block()
 
 
     # url = 'http://linksmart:8082/' #when using docker container
     url = 'http://localhost:8087/' # in the host
-    reg.registration('im_cap.json',url)
+    #reg.registration('im_cap.json',url)
 
     
 

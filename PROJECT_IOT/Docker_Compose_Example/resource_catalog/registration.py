@@ -10,11 +10,15 @@ def registration(json_file, url,id=None):
 
     while True:
         try:
-            services_list = (search(url))
-            print(services_list)
+
+            services_list = search(url)
+            # print(id)
+            # print("list is \n\n \n",services_list)
+            # print(services_list[0]['apis'][0]['id'])
             for S in services_list:
-                if S['id'] == id:
+                if S['apis'][0]['id'] == id:
                     print('no need to post')
+                    time.sleep(2)
             else:
                 # print('ok')
                 x = requests.post(url, json.dumps(obj))
@@ -22,16 +26,20 @@ def registration(json_file, url,id=None):
                 # print(x.text)
                 # ID = x['id']
                 # print(f'id is {ID}')
-                # print('registration succedeed\nID is {}'.format(ID))
+                print('registration succedeed')
+                time.sleep(2)
+
             while True:
                 try:
                     requests.put(url, json.dumps(obj))
 
-                    # print('update succeeded\nID is {}'.format(ID))
-                    time.sleep(5)
+                    print('update succeeded')
+                    time.sleep(3)
                 except:
                     print('update failed with the host')
+                    time.sleep(2)
+
 
         except:
             print('registration failed with the host')
-        time.sleep(5)
+        time.sleep(3)

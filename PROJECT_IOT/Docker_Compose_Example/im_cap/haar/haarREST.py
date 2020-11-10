@@ -38,40 +38,47 @@ class HaarREST(object):
 
 
 	def GET(self):
-		if self.cameral_url == None:
-			self.__init__()
-		else:
+		print('im here  there')
+		# if self.cameral_url == None:
+		# 	print('if')
+		# 	#self.__init__()# get data from service catalog the from resource catalog
+		# 	pass
+		# else:
+		try:
+			print('else')
+			face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+			np.set_printoptions(threshold=sys.maxsize)
+
+			print('im here  there')
+
+			# data = requests.get(self.cameral_url).content #retrieving data from im_cap.py [string]
+			data = requests.get("http://192.168.1.150:8091").content #retrieving data from im_cap.py [string]
+			my_array = s2n.string2numpy(data)
+			print(my_array)
+
+			cv2.imshow('Color image', my_array)
+			cv2.waitKey(5000)
+			cv2.destroyAllWindows()
+
+			#print(hashlib.md5(strr.encode('utf-8')).hexdigest())
+			#print(my_array.shape)
+
 			try:
-				face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-				np.set_printoptions(threshold=sys.maxsize)
-
-
-				data = requests.get(self.cameral_url).content #retrieving data from im_cap.py [string]
-
-				my_array = s2n.string2numpy(data)
-				cv2.imshow('Color image', my_array)
-				cv2.waitKey(5000)
-				cv2.destroyAllWindows()
-
-				#print(hashlib.md5(strr.encode('utf-8')).hexdigest())
-				#print(my_array.shape)
-
-				try:
-					faces = face_cascade.detectMultiScale(my_array, 1.3, 5)
-					if len(faces) > 0: #looking at how many faces are detected
-						detected_faces = True
-					else:
-						detected_faces = False
-
-				except:
-					raise cherrypy.HTTPError(500, 'Impossible to use Haar Functions')
-
-				output = {'Face':detected_faces, 'Number of detected faces':len(faces)}
-
-				return json.dumps(output)
+				faces = face_cascade.detectMultiScale(my_array, 1.3, 5)
+				if len(faces) > 0: #looking at how many faces are detected
+					detected_faces = True
+				else:
+					detected_faces = False
 
 			except:
-				raise cherrypy.HTTPError(500, 'Impossible to process the Image')
+				raise cherrypy.HTTPError(500, 'Impossible to use Haar Functions')
+
+			output = {'Face':detected_faces, 'Number of detected faces':len(faces)}
+
+			return json.dumps(output)
+
+		except:
+			raise cherrypy.HTTPError(500, 'Impossible to process the Image')
 
 
 

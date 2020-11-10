@@ -88,7 +88,7 @@ class Controller:
         try:
             if self.sc_response.status_code == 200:
                 print('the service catalog is up and running')
-                # proceed later on with the registration of control
+                  # proceed later on with the registration of control
         except:
             print('the service catalog is down')
 
@@ -104,7 +104,7 @@ class Controller:
             self.get_ser_urls() # update active services list (default port of linksmart is 8082)
             # print(self.active_services_list) # for debugging
             for S in self.active_services_list:
-                #
+
                 if S['title'] == 'RC':# look for resource catalog in service catalog
                     url = S['apis'][0]['url']
                     x = requests.get(url).json()
