@@ -1,0 +1,11 @@
+{                 "resource_name": "camera01",
+                  "type": "REST",
+                  "topic":"",
+                  "sensor_ID":"camera01",
+                  "description": "discription here",
+                  "meta": {},
+                  "URL": "192.168.1.150:8091",
+                  "port" :1883,
+                  "pin_number":7
+
+                }

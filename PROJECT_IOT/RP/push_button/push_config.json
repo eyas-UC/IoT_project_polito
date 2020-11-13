@@ -1,0 +1,11 @@
+{                 "resource_name": "push01",
+                  "type": "MQTT",
+                  "topic":"home/push01",
+                  "sensor_ID":"push_01",
+                  "description": "discription here",
+                  "meta": {},
+                  "URL": "test.mosquitto.org",
+                  "port" :1883,
+                  "pin_number":18
+
+                }
