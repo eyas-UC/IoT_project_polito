@@ -1,0 +1,11 @@
+{                 "resource_name": "led01",
+                  "type": "MQTT",
+                  "topic":"home/led01",
+                  "sensor_ID":"led_01",
+                  "description": "discription here",
+                  "meta": {},
+                  "URL": "192.168.1.150",
+                  "port" :1883,
+                  "pin_number":37
+
+                }
