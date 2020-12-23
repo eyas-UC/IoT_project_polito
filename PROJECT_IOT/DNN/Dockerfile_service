@@ -1,0 +1,8 @@
+ARG PYTHON_VERSION
+FROM python:$PYTHON_VERSION
+COPY . /app
+WORKDIR /app
+#RUN pip install --upgrade pip
+RUN pip install cherrypy
+RUN pip install requests
+CMD python ./ser.py

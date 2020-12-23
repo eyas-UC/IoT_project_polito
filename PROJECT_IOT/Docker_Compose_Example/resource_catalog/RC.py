@@ -20,6 +20,7 @@ class Resource:
 
     def show_resource(self):
         try:
+            time.sleep(0.5)
             with open('logfile.json', 'r') as logfile:
                 self.json_file = json.load(logfile)
             logfile.close()
@@ -131,11 +132,6 @@ class delete_thread(Thread):
         while True:
             x= requests.get("http://localhost:8087").json()
             time.sleep(15)
-            #print(x)
-            #print(type(x))
-            #x=json.loads(x)
-            # print(x)
-            # print(type(x))
             resources_list = x['list_of_RCs']
             # print(resources_list)
             if not resources_list:
@@ -153,23 +149,27 @@ class delete_thread(Thread):
             time.sleep(8)
 
 
+class  cherry_thread(Thread):
+
+    def __init__(self, thread_ID):
+        Thread.__init__(self)
+        self.thread_ID = thread_ID
+    def run(self):
+        conf = {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+        cherrypy.tree.mount(Resource_cat(), '/', conf)
+        cherrypy.config.update({'server.socket_host': '0.0.0.0'})
+        cherrypy.config.update({'server.socket_port': 8087})
+        cherrypy.engine.start()
 
 if __name__ == '__main__':
-    # Res = {"outer_part": "hello",
-    #        "list_of_RCs": [{ "name": "motion","ID": 1,"protocol": "REST","URL":"url", "Updated": time.ctime(time.time())}]}
-    #
-    # with open('logfile.json', 'w') as logfile:
-    #     json.dump(Res, logfile)
-    # logfile.close()
-    #
-    conf = {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
-    cherrypy.tree.mount(Resource_cat(), '/', conf)
-    cherrypy.config.update({'server.socket_host': '0.0.0.0'})
-    cherrypy.config.update({'server.socket_port': 8087})
-    cherrypy.engine.start()
+
+
     a1 = delete_thread(1)
     a2 = sc_registration_thread(2)
+    a3 = cherry_thread(3)
     a1.start()
     a2.start()
+    a3.start()
     a1.join()
     a2.join()
+    a3.join()
