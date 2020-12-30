@@ -47,14 +47,14 @@ class client():
 
 
         print((f'This is dummy-->{dummy}'))
-        # dummy =(msg.payload.decode('utf-8'))
-        if dummy['resource_name'] == 'motion01':
-            self.mypub('home/led01', dummy['motion'])
-        else:
-            # self.mypub('home/led01', dummy['push_button'])
-            if dummy['push_button']==True:
-                requests.get('http://raspberrypi:8091/')
-                time.sleep(5)
+        # # dummy =(msg.payload.decode('utf-8'))
+        # if dummy['resource_name'] == 'motion01':
+        #     self.mypub('home/led01', dummy['motion'])
+        # else:
+        #     # self.mypub('home/led01', dummy['push_button'])
+        #     if dummy['push_button']==True:
+        #         requests.get('http://raspberrypi:8091/')
+        #         time.sleep(5)
 
         # self.mymessage = json.loads(msg.payload.decode('utf-8'))
         # Mqtt subs states
@@ -192,11 +192,11 @@ class controller_thread(Thread):
 
 a_a = Controller('1')
 time.sleep(3)
-b_b = Controller('2')
-a_a.sub_to_RCs()
+# b_b = Controller('2')
+# a_a.update_resources_list()
 mythread2 = controller_thread('idd')
-mythread = logic('idd')
-mythread.start()
+# mythread = logic('idd')
+# mythread.start()
 mythread2.start()
 mythread2.join()
-mythread.join()
+# mythread.join()

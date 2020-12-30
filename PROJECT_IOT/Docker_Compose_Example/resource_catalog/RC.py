@@ -135,9 +135,10 @@ class delete_thread(Thread):
             resources_list = x['list_of_RCs']
             # print(resources_list)
             if not resources_list:
+                # empty
                 pass
             else:
-                # print(resources_list)
+                print(resources_list)
                 for R in resources_list:
                     # print('\n \ntype check')
                     # print(type (   time.time()  )   )
