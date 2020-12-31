@@ -126,6 +126,7 @@ class Controller:
             self.get_ser_urls()  # update active services list (default port of linksmart is 8082)
             # print(self.active_services_list) # for debugging
             for S in self.active_services_list:
+                # print(S)
 
                 if S['title'] == 'RC':  # look for resource catalog in service catalog
                     # there should be only one instance of RC running at a time
@@ -145,8 +146,10 @@ class Controller:
                             self.rc_pub_namelist.append(R['resource_name'])
                             self.rc_pub_topiclist.append(R['topic'])
 
-                    # print(self.rc_sub_namelist)
-                    # print(self.rc_sub_topiclist)
+                    print(f'to sub to name list{self.rc_sub_namelist} topic list {self.rc_sub_topiclist}')
+                    print(f'to pub to name list{self.rc_pub_namelist} topic list {self.rc_pub_topiclist}')
+
+
         except:
             print('could not update resources')
 
@@ -180,20 +183,20 @@ class controller_thread(Thread):
         Thread.__init__(self)
     def run(self):
         # controlling led
+        a_a = Controller('1')
+
         while True:
+            a_a.update_resources_list()
             # print(a_a.mqtt_instance.mymessage)
             # with open('motion01.json') as file:
             #     content = json.load(file)
             #     file.close()
             # b_b.mqtt_instance.mypub('home/led01', str(content['motion']))
-            time.sleep(1)
+            time.sleep(4)
             # print(content['motion'],time.ctime(time.time()))
 
 
-a_a = Controller('1')
-time.sleep(3)
-# b_b = Controller('2')
-# a_a.update_resources_list()
+
 mythread2 = controller_thread('idd')
 # mythread = logic('idd')
 # mythread.start()
