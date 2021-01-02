@@ -6,6 +6,8 @@ import requests
 import service_search
 from threading import *
 from registration import *
+from on_message_callback import *
+
 import string2numpy as s2n
 
 
@@ -44,9 +46,16 @@ class client():
         ## the recieved sensor data(json) should contain which house / user / client
 
         dummy = json.loads(msg.payload.decode('utf-8'))
+        print((f'This is dummy...\n{dummy}'))
+
+        # the received message will have the following structure.
+        # {
+        # "bn":"basename",
+        # "e":{"n":"name","t":time","v","value"}
+        # }
+        dict_handler(self,dummy)
 
 
-        print((f'This is dummy-->{dummy}'))
         # # dummy =(msg.payload.decode('utf-8'))
         # if dummy['resource_name'] == 'motion01':
         #     self.mypub('home/led01', dummy['motion'])
@@ -95,14 +104,17 @@ class client():
 class Controller:
     def __init__(self,id):
         # initialize an instance of an MQTT client as well
+        print('controller instance created...')
         with open('initialization.json', 'r') as file:
             dict = json.load(file)
+        print(dict)
         file.close()
         # check if the right service catalog is up
         self.service_catalog_url = dict['sc_url']
         self.broker = dict['broker']
         self.port = dict['port']
         self.sc_response = requests.get(dict['sc_url'])
+        print(self.sc_response)
         self.mqtt_instance = client(id, self.broker, self.port)
         self.mqtt_instance.start()
         self.mqtt_instance.isSubscriber = False
@@ -156,7 +168,7 @@ class Controller:
     def sub_to_RCs(self):
         try:
             self.update_resources_list()
-            print(self.active_resources_list)
+            #print(self.active_resources_list)
             for topic in self.rc_sub_topiclist:
                 print(f'topic is {topic}')
                 self.mqtt_instance.mySub(topic)
@@ -172,7 +184,7 @@ class logic(Thread):
 
     def run(self):
         while True:
-            time.sleep(1)
+            time.sleep(5)
             # print(((a_a.mqtt_instance.mymessage)))
             # print(a_a.mqtt_instance.mymessage)
 
@@ -184,22 +196,11 @@ class controller_thread(Thread):
     def run(self):
         # controlling led
         a_a = Controller('1')
-
         while True:
             a_a.update_resources_list()
-            # print(a_a.mqtt_instance.mymessage)
-            # with open('motion01.json') as file:
-            #     content = json.load(file)
-            #     file.close()
-            # b_b.mqtt_instance.mypub('home/led01', str(content['motion']))
-            time.sleep(4)
-            # print(content['motion'],time.ctime(time.time()))
-
-
+            a_a.sub_to_RCs()
+            time.sleep(5)
 
 mythread2 = controller_thread('idd')
-# mythread = logic('idd')
-# mythread.start()
 mythread2.start()
 mythread2.join()
-# mythread.join()
