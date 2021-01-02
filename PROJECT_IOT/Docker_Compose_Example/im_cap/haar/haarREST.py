@@ -13,49 +13,82 @@ from resource_search import *
 class HaarREST(object):
 	exposed = True
 	def __init__(self):
-		self.cameral_url = None
-		try:
-			print('hello')
-
-			#get list of services
-			self.service_list = search('http://localhost:8082')
-			# print(self.service_list)
-			for S in self.service_list:
-				if S['title'] == 'RC':
-					print('the resource catalog is working\nfinding the camera...')
-					self.resources_list = r_search()
-					# print(self.resources_list)
-					for R in self.resources_list:
-						if R['resource_name'] == 'camera01':
-							self.cameral_url = R['URL']
-							print('\n\ncamera found at {} \n\n'.format(self.cameral_url))
-
-
-		except:
-			print('cannot connect to linksmart')
+		pass
+		# self.cameral_url = None
+		# self.found = False
+		# try:
+		# 	print('hello')
+		# 	try:
+		# 		state,url = search('http://localhost:8082', 'RC')
+		# 		if state == True:
+		# 			print('ser and res cat are up')
+		# 			state,self.cameral_url,self.cameral_port,topic=r_search(resource_name='camera01')
+		# 			print(state,self.cameral_url,self.cameral_port,topic)
+		# 			if state == True:
+		# 				print('\n\ncamera found at {} {}\n\n'.format(self.cameral_url, self.cameral_port))
+		# 				self.found = True
+		# 	except:
+		# 		print('check service catalog and/or resource catalog')
+		# except:
+		# 	print('cannot connect to linksmart')
 
 
-
-
-	def GET(self):
+	def GET(self,**params):
+		print(params.values())
+		return 'sorry bae'
+		#uri ,
 		print('im here  there')
-		# if self.cameral_url == None:
-		# 	print('if')
-		# 	#self.__init__()# get data from service catalog the from resource catalog
-		# 	pass
-		# else:
+
+		if self.found == True:
+			try:
+				print('else')
+				face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+				np.set_printoptions(threshold=sys.maxsize)
+				cam = "http://"+self.cameral_url+":"+self.cameral_port
+				print('url is this \n\n'+cam)
+				data = requests.get(cam).content #retrieving data from im_cap.py [string]
+				my_array = s2n.string2numpy(data)
+				print(my_array)
+				# show image
+				cv2.imshow('Color image', my_array)
+				cv2.waitKey(5000)
+				cv2.destroyAllWindows()
+
+				#print(hashlib.md5(strr.encode('utf-8')).hexdigest())
+				#print(my_array.shape)
+
+				try:
+					faces = face_cascade.detectMultiScale(my_array, 1.3, 5)
+					if len(faces) > 0: #looking at how many faces are detected
+						detected_faces = True
+					else:
+						detected_faces = False
+
+				except:
+					raise cherrypy.HTTPError(500, 'Impossible to use Haar Functions')
+
+				output = {'Face':detected_faces, 'Number of detected faces':len(faces)}
+
+				return json.dumps(output)
+
+			except:
+				raise cherrypy.HTTPError(500, 'Impossible to process the Image')
+		else :
+			self.__init__()
+			return('try again')
+
+	def POST(self):
+		cam_url = cherrypy.request.body.read().decode('utf-8')
 		try:
 			print('else')
 			face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 			np.set_printoptions(threshold=sys.maxsize)
-
-			print('im here  there')
-
-			# data = requests.get(self.cameral_url).content #retrieving data from im_cap.py [string]
-			data = requests.get("http://192.168.1.150:8091").content #retrieving data from im_cap.py [string]
+			# cam = "http://"+self.cameral_url+":"+self.cameral_port
+			# print('url is this \n\n'+cam)
+			data = requests.get(cam_url).content #retrieving data from im_cap.py [string]
 			my_array = s2n.string2numpy(data)
 			print(my_array)
-
+			# show image
 			cv2.imshow('Color image', my_array)
 			cv2.waitKey(5000)
 			cv2.destroyAllWindows()

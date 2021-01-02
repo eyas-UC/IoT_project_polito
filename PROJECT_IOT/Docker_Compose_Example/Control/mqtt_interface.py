@@ -1,4 +1,4 @@
-# look for services in SC
+
 import paho.mqtt.client as mqtt
 import time
 import json
@@ -6,12 +6,62 @@ import requests
 import service_search
 from threading import *
 from registration import *
-from on_message_callback import *
 
 import string2numpy as s2n
 
+def number_handler(bn):
+    word_list = bn.split('/')
+    number = ''
+    for char in word_list[0]:
+        if char.isdigit():
+            number += char
+    if number == '':
+        return 'wrong format'
+    else:
+        return (number)
 
-# url = service_search.search('http://localhost:8082','mqtt-broker-at-localhost')
+def event_handler(self,dicto):
+    basename = dicto['bn']
+    house_no = number_handler(basename)
+    sen_name = dicto['e']['n']
+    sen_no = dicto['e']['no']
+    updated_time = dicto['e']['t']
+    value = dicto['e']['v']
+    # conditions here
+    ##########################################
+    if sen_name == 'motion':
+        #pub message to led
+        print(sen_no)
+        if value == True:
+            print('True')
+            try:
+                self.mypub('home/led'+sen_no, 'True')
+                # telegram here
+                # log this data
+            except:
+                print('error in dictionary')
+            time.sleep(0.1)
+        if value == False:
+            try:
+                # pass
+                self.mypub('home/led' + sen_no, 'False')
+                #log this data
+            except:
+                print('error in dictionary')
+            print('False')
+
+    if sen_name == 'push_button':
+        # print('push button state is changed')
+
+        if value == True:
+            state,url = service_search.search(service_title='Haar')
+            cam_index = self.rc_REST_namelist.index('camera01')
+            print(self.rc_REST_urllist[cam_index])
+            if state == True:
+                x = requests.post(url,self.rc_REST_urllist[cam_index]).json()
+                print(x)
+
+
 
 
 class client():
@@ -45,34 +95,8 @@ class client():
         ## get data(done by being in on message function) and do action
         ## the recieved sensor data(json) should contain which house / user / client
 
-        dummy = json.loads(msg.payload.decode('utf-8'))
-        print((f'This is dummy...\n{dummy}'))
-
-        # the received message will have the following structure.
-        # {
-        # "bn":"basename",
-        # "e":{"n":"name","t":time","v","value"}
-        # }
-        dict_handler(self,dummy)
-
-
-        # # dummy =(msg.payload.decode('utf-8'))
-        # if dummy['resource_name'] == 'motion01':
-        #     self.mypub('home/led01', dummy['motion'])
-        # else:
-        #     # self.mypub('home/led01', dummy['push_button'])
-        #     if dummy['push_button']==True:
-        #         requests.get('http://raspberrypi:8091/')
-        #         time.sleep(5)
-
-        # self.mymessage = json.loads(msg.payload.decode('utf-8'))
-        # Mqtt subs states
-        # create a file that stores the latest state of the system
-        # self.mypub()#error
-        # print(self.mymessage)
-        # with open(self.mymessage['resource_name']+'.json','w') as file:
-        #      json.dump(self.mymessage,file)
-        #      print(f'{self.mymessage["resource_name"]} is updated')
+        received_dict = json.loads(msg.payload.decode('utf-8'))
+        event_handler(self,received_dict)
 
     def mySub(self, topic):
         print('subscribing to {}'.format(topic))
@@ -105,7 +129,7 @@ class Controller:
     def __init__(self,id):
         # initialize an instance of an MQTT client as well
         print('controller instance created...')
-        with open('initialization.json', 'r') as file:
+        with open('initialization.json') as file:
             dict = json.load(file)
         print(dict)
         file.close()
@@ -149,6 +173,9 @@ class Controller:
                     self.rc_sub_topiclist = []
                     self.rc_pub_namelist = []
                     self.rc_pub_topiclist = []
+                    self.mqtt_instance.rc_REST_namelist = []
+                    self.mqtt_instance.rc_REST_urllist = []
+
                     # print(self.active_resources_list)
                     for R in self.active_resources_list:
                         if R['type'] == 'MQTT_2sub2':
@@ -157,9 +184,13 @@ class Controller:
                         if R['type'] == 'MQTT_2pub2':
                             self.rc_pub_namelist.append(R['resource_name'])
                             self.rc_pub_topiclist.append(R['topic'])
+                        if R['type'] == 'REST':
+                            self.mqtt_instance.rc_REST_namelist.append((R['resource_name']))
+                            self.mqtt_instance.rc_REST_urllist.append((R['RC_url']))
 
                     print(f'to sub to name list{self.rc_sub_namelist} topic list {self.rc_sub_topiclist}')
                     print(f'to pub to name list{self.rc_pub_namelist} topic list {self.rc_pub_topiclist}')
+                    print(f'added {self.mqtt_instance.rc_REST_namelist} with url {self.mqtt_instance.rc_REST_urllist}')
 
 
         except:
@@ -197,9 +228,11 @@ class controller_thread(Thread):
         # controlling led
         a_a = Controller('1')
         while True:
-            a_a.update_resources_list()
+            #a_a.update_resources_list()
             a_a.sub_to_RCs()
-            time.sleep(5)
+            time.sleep(30)
+
+
 
 mythread2 = controller_thread('idd')
 mythread2.start()

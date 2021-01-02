@@ -1,16 +1,25 @@
 import requests
 
-def search(sc_url='http://localhost:8082',service_id=None):
+def search(sc_url='http://localhost:8082',service_title=None):
     response_dict = requests.get(sc_url).json()
     # print(response_dict)
     service_list = response_dict['services']
-    if service_id == None:
+    if service_title == None:
+        # print('here for some reason')
         return service_list
-    for S in service_list:
-        if service_id == S['id']:
-            url = S['apis'][0]['url']
-            # print(f'the url is {url}')
-            return url
+    else:
+        state = False
+        url = ' '
+        # print(len(service_list))
+        for S in service_list:
+            # print(S['title'])
+            # print(service_title)
+            if service_title == S['title']:
+                url = S['apis'][0]['url']
+                state = True
+        # print('the output is {} {}'.format(state,url))
+        return state,url
 
+# print(search(service_title='RC'))
 
 

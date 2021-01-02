@@ -9,8 +9,8 @@
 # motion --> led + telegram
 # face detected --> motor to unlock
 
-from mqtt_interface import *
 import json
+
 def number_handler(bn):
     word_list = bn.split('/')
     number = ''
@@ -40,5 +40,5 @@ def dict_handler(self,dicto):
 
 
 
-dict = { "bn":"home03/sensors","e":{"n":"motion","no":"01","t":"time","v":"value"}}
+#dict = { "bn":"home03/sensors","e":{"n":"motion","no":"01","t":"time","v":"value"}}
 
