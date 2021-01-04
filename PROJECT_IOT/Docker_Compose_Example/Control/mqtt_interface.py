@@ -1,4 +1,3 @@
-
 import paho.mqtt.client as mqtt
 import time
 import json
@@ -8,6 +7,7 @@ from threading import *
 from registration import *
 
 import string2numpy as s2n
+
 
 def number_handler(bn):
     word_list = bn.split('/')
@@ -20,7 +20,12 @@ def number_handler(bn):
     else:
         return (number)
 
-def event_handler(self,dicto):
+
+def event_handler(self, dicto):
+    # {
+    # "bn":"homexx/sensors",
+    # "e":{"n":"motion", "no":"number","t":time","v","value"}
+    # }
     basename = dicto['bn']
     house_no = number_handler(basename)
     sen_name = dicto['e']['n']
@@ -29,39 +34,51 @@ def event_handler(self,dicto):
     value = dicto['e']['v']
     # conditions here
     ##########################################
+
     if sen_name == 'motion':
-        #pub message to led
+        # pub message to led
         print(sen_no)
         if value == True:
             print('True')
+            print('house no is ' + house_no)
             try:
-                self.mypub('home/led'+sen_no, 'True')
+                push_dict = {'e': {'v': True, 'time': str(time.time())}}
+
+                self.mypub('home' + house_no + '/led' + sen_no, json.dumps(push_dict))
                 # telegram here
                 # log this data
             except:
-                print('error in dictionary')
-            time.sleep(0.1)
+                print('error in dictionary1')
         if value == False:
             try:
                 # pass
-                self.mypub('home/led' + sen_no, 'False')
-                #log this data
+                push_dict = {'e': {'v': False, 'time': str(time.time())}}
+                self.mypub('home' + house_no + '/led' + sen_no, json.dumps(push_dict))
+                # log this data
             except:
                 print('error in dictionary')
             print('False')
 
     if sen_name == 'push_button':
         # print('push button state is changed')
-
+        print(self.rc_REST_dict_list)
         if value == True:
-            state,url = service_search.search(service_title='Haar')
-            cam_index = self.rc_REST_namelist.index('camera01')
-            print(self.rc_REST_urllist[cam_index])
-            if state == True:
-                x = requests.post(url,self.rc_REST_urllist[cam_index]).json()
-                print(x)
+            state, haar_url = service_search.search(service_title='Haar')
+            for dicto in self.rc_REST_dict_list:
+                if dicto['house_ID'] == "home" + house_no:
+                    print(f'house no {house_no} ip {dicto["URL"]} port {dicto["port"]}')
+                    cam_url = 'http://' + dicto["URL"] + ':' + dicto["port"]
+                    print(f'cam url {cam_url}')
+                    print(f'haar url {haar_url}')
+                    x = requests.post(haar_url, cam_url)
+                    # print(x)
 
-
+        #     state,url = service_search.search(service_title='Haar')
+        #     cam_index = self.rc_REST_namelist.index('camera01')
+        #     print(self.rc_REST_urllist[cam_index])
+        #     if state == True:
+        #         x = requests.post(url,self.rc_REST_urllist[cam_index]).json()
+        #         print(x)
 
 
 class client():
@@ -96,7 +113,7 @@ class client():
         ## the recieved sensor data(json) should contain which house / user / client
 
         received_dict = json.loads(msg.payload.decode('utf-8'))
-        event_handler(self,received_dict)
+        event_handler(self, received_dict)
 
     def mySub(self, topic):
         print('subscribing to {}'.format(topic))
@@ -126,7 +143,7 @@ class client():
 
 
 class Controller:
-    def __init__(self,id):
+    def __init__(self, id):
         # initialize an instance of an MQTT client as well
         print('controller instance created...')
         with open('initialization.json') as file:
@@ -173,8 +190,7 @@ class Controller:
                     self.rc_sub_topiclist = []
                     self.rc_pub_namelist = []
                     self.rc_pub_topiclist = []
-                    self.mqtt_instance.rc_REST_namelist = []
-                    self.mqtt_instance.rc_REST_urllist = []
+                    self.mqtt_instance.rc_REST_dict_list = []
 
                     # print(self.active_resources_list)
                     for R in self.active_resources_list:
@@ -185,12 +201,11 @@ class Controller:
                             self.rc_pub_namelist.append(R['resource_name'])
                             self.rc_pub_topiclist.append(R['topic'])
                         if R['type'] == 'REST':
-                            self.mqtt_instance.rc_REST_namelist.append((R['resource_name']))
-                            self.mqtt_instance.rc_REST_urllist.append((R['RC_url']))
+                            self.mqtt_instance.rc_REST_dict_list.append(R)
 
                     print(f'to sub to name list{self.rc_sub_namelist} topic list {self.rc_sub_topiclist}')
                     print(f'to pub to name list{self.rc_pub_namelist} topic list {self.rc_pub_topiclist}')
-                    print(f'added {self.mqtt_instance.rc_REST_namelist} with url {self.mqtt_instance.rc_REST_urllist}')
+                    print(f'added {self.mqtt_instance.rc_REST_dict_list}')
 
 
         except:
@@ -199,13 +214,12 @@ class Controller:
     def sub_to_RCs(self):
         try:
             self.update_resources_list()
-            #print(self.active_resources_list)
+            # print(self.active_resources_list)
             for topic in self.rc_sub_topiclist:
                 print(f'topic is {topic}')
                 self.mqtt_instance.mySub(topic)
         except:
             print('could not subscribe')
-
 
 
 class logic(Thread):
@@ -224,14 +238,14 @@ class controller_thread(Thread):
 
     def __init__(self, thread_ID):
         Thread.__init__(self)
+
     def run(self):
         # controlling led
         a_a = Controller('1')
         while True:
-            #a_a.update_resources_list()
+            # a_a.update_resources_list()
             a_a.sub_to_RCs()
             time.sleep(30)
-
 
 
 mythread2 = controller_thread('idd')
