@@ -72,7 +72,6 @@ def event_handler(self, dicto):
                     print(f'haar url {haar_url}')
                     x = requests.post(haar_url, cam_url)
                     # print(x)
-
         #     state,url = service_search.search(service_title='Haar')
         #     cam_index = self.rc_REST_namelist.index('camera01')
         #     print(self.rc_REST_urllist[cam_index])
