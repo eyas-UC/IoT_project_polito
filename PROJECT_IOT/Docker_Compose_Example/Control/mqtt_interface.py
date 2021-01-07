@@ -5,6 +5,8 @@ import requests
 import service_search
 from threading import *
 from registration import *
+import telepot
+from telepot.loop import MessageLoop
 
 import string2numpy as s2n
 
@@ -21,7 +23,7 @@ def number_handler(bn):
         return (number)
 
 
-def event_handler(self, dicto):
+def event_handler(self, dicto = None):
     # {
     # "bn":"homexx/sensors",
     # "e":{"n":"motion", "no":"number","t":time","v","value"}
@@ -45,7 +47,10 @@ def event_handler(self, dicto):
                 push_dict = {'e': {'v': True, 'time': str(time.time())}}
 
                 self.mypub('home' + house_no + '/led' + sen_no, json.dumps(push_dict))
+                service_search.search('REST_control')
+                requests.post('')
                 # telegram here
+                # send post request to some service that translate post to bot messages
                 # log this data
             except:
                 print('error in dictionary1')
@@ -159,6 +164,11 @@ class Controller:
         self.mqtt_instance.start()
         self.mqtt_instance.isSubscriber = False
         self.mqtt_instance.mymessage = ''
+
+        self.bot = telepot.Bot(self.tokenBot)
+        self.bot.deleteWebhook()
+        print('set up complete')
+        self.chatIDs = []
 
         try:
             if self.sc_response.status_code == 200:

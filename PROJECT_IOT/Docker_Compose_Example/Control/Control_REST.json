@@ -1,15 +1,15 @@
 {
                           "type": "REST_API",
-                          "title": "bot",
-                          "description": "bot",
+                          "title": "control",
+                          "description": "control",
                           "meta": {},
                           "apis": [
                             {
-                              "id": "bot",
-                              "title": "bot",
-                              "description": "none",
+                              "id": "control",
+                              "title": "control",
+                              "description": "control",
                               "protocol": "REST",
-                              "url": "http://localhost:8099",
+                              "url": "http://localhost:8097",
                               "spec": {
                                 "mediaType": "",
                                 "url": "",
@@ -18,6 +18,6 @@
                               "meta": null
                             }
                           ],
-                          "doc": "http://bot:8099",
-                          "ttl": 6
+                          "doc": "http://control:8097",
+                          "ttl": 7
                         }
