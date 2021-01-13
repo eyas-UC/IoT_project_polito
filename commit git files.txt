@@ -2,5 +2,8 @@ git clone https://github.com/eyas-UC/IoT_project_polito
 git pull --rebase origin master
 git add "File name.py"
 git commit .
+i to type
+esc to exit
+then type :wq after pressing esc then hit enter
 
 git push origin master
