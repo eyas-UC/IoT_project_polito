@@ -41,18 +41,17 @@ class HaarREST(object):
 
 		if self.found == True:
 			try:
-				print('else')
 				face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 				np.set_printoptions(threshold=sys.maxsize)
 				cam = "http://"+self.cameral_url+":"+self.cameral_port
-				print('url is this \n\n'+cam)
+				# print('url is this \n\n'+cam)
 				data = requests.get(cam).content #retrieving data from im_cap.py [string]
 				my_array = s2n.string2numpy(data)
-				print(my_array)
+				# print(my_array)
 				# show image
-				cv2.imshow('Color image', my_array)
-				cv2.waitKey(5000)
-				cv2.destroyAllWindows()
+				# cv2.imshow('Color image', my_array)
+				# cv2.waitKey(5000)
+				# cv2.destroyAllWindows()
 
 				#print(hashlib.md5(strr.encode('utf-8')).hexdigest())
 				#print(my_array.shape)
@@ -80,18 +79,18 @@ class HaarREST(object):
 	def POST(self):
 		cam_url = cherrypy.request.body.read().decode('utf-8')
 		try:
-			print('else')
+			# print('else')
 			face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 			np.set_printoptions(threshold=sys.maxsize)
 			# cam = "http://"+self.cameral_url+":"+self.cameral_port
 			# print('url is this \n\n'+cam)
 			data = requests.get(cam_url).content #retrieving data from im_cap.py [string]
 			my_array = s2n.string2numpy(data)
-			print(my_array)
-			# show image
-			cv2.imshow('Color image', my_array)
-			cv2.waitKey(5000)
-			cv2.destroyAllWindows()
+			# print(my_array)
+			# # show image
+			# cv2.imshow('Color image', my_array)
+			# cv2.waitKey(5000)
+			# cv2.destroyAllWindows()
 
 			#print(hashlib.md5(strr.encode('utf-8')).hexdigest())
 			#print(my_array.shape)

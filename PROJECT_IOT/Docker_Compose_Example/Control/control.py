@@ -25,26 +25,24 @@ def number_handler(bn):
 
 def event_handler(self, dicto = None):
     # {
-    # "bn":"homexx/sensors",
+    # "bn":"xx",
     # "e":{"n":"motion", "no":"number","t":time","v","value"}
     # }
-    basename = dicto['bn']
-    house_no = number_handler(basename)
+    house_no = dicto['bn']
     sen_name = dicto['e']['n']
     sen_no = dicto['e']['no']
     updated_time = dicto['e']['t']
     value = dicto['e']['v']
     # conditions here
     ##########################################
-    print(dicto)
-    if sen_name == 'motion':
+    # print(dicto)
+    if sen_name =='motion' :
 
         # pub message to led
-        print(sen_no)
-        print(value)
+        # print(sen_no)
+        # print(value)
         if value == True:
-            print('True')
-            print('house no is ' + house_no)
+# response to motion in the house
             try:
                 dump_dict = {'e': {'v': True , 'time': str(time.time())}}
                 # print(json.dumps(dump_dict) )
@@ -52,12 +50,14 @@ def event_handler(self, dicto = None):
                 self.mypub('home' + house_no + '/led' + sen_no, json.dumps(dump_dict))
                 # look for the bot and get its url
                 state , boturl = service_search.search(service_title = 'bot')
-                full_url = boturl+'/motion'
-                print(f'state is {state} and url is {boturl}')
-                print(full_url)
-                requests.post(full_url,(json.dumps(dicto)))
                 # telegram here
-                # x = requests.post()
+
+                if state == True:
+                    full_url = boturl+'/motion'
+                    # print(f'state is {state} and url is {boturl}')
+                    # print(full_url)
+                    requests.post(full_url,(json.dumps(dicto))) # telegram bot
+
                 # send post request to some service that translate post to bot messages
                 # log this data
             except:
@@ -70,27 +70,37 @@ def event_handler(self, dicto = None):
                 # log this data
             except:
                 print('error in dictionary')
-            print('False')
+            # print('False')
+    if sen_name =='push_button' :
+        try:
+            push_dict = {'e': {'v': True, 'time': str(time.time())}}
+            # print('push button state is changed')
+            if value == True:
+                print('push_button pressed')
 
-    if sen_name == 'push_button':
-        # print('push button state is changed')
-        print(self.rc_REST_dict_list)
-        if value == True:
-            state, haar_url = service_search.search(service_title='Haar')
-            for dicto in self.rc_REST_dict_list:
-                if dicto['house_ID'] == "home" + house_no:
-                    print(f'house no {house_no} ip {dicto["URL"]} port {dicto["port"]}')
-                    cam_url = 'http://' + dicto["URL"] + ':' + dicto["port"]
-                    print(f'cam url {cam_url}')
-                    print(f'haar url {haar_url}')
-                    x = requests.post(haar_url, cam_url)
-                    # print(x)
-        #     state,url = service_search.search(service_title='Haar')
-        #     cam_index = self.rc_REST_namelist.index('camera01')
-        #     print(self.rc_REST_urllist[cam_index])
-        #     if state == True:
-        #         x = requests.post(url,self.rc_REST_urllist[cam_index]).json()
-        #         print(x)
+                state, boturl = service_search.search(service_title='bot')
+                # telegram here
+                if state == True:
+                    full_url = boturl + '/push_button'
+                    requests.post(full_url, (json.dumps(dicto)))
+
+                for dump_dict in self.rc_REST_dict_list:
+                    if dump_dict['house_ID'] ==  house_no:
+                        #cam found in the same house where pb is pressed
+                        state, haar_url = service_search.search(service_title='Haar')
+                        if state == True:
+                            # print(f'house no {house_no} ip {dicto["URL"]} port {dicto["port"]}')
+                            cam_url = 'http://' + dump_dict["URL"] + ':' + dump_dict["port"]
+                            x = requests.post(haar_url,cam_url)
+                            full_url = boturl + '/haar'
+                            # print(full_url)-
+                            # print(type(x.json()))
+                            # print(x.json())
+                            requests.post(full_url, json.dumps(x.json()))
+
+                        # x = requests.post(haar_url, cam_url)
+        except:
+            print('error pushbutton posting/haar')
 
 #mqtt client class (generic except for)
 #on message calls event handler
@@ -99,7 +109,7 @@ class client():
         self.clientID = clientID
         self.broker = broker
         self.port = port
-        print('broker={},port={}'.format(broker, port))
+        # print('broker={},port={}'.format(broker, port))
         # initializing an instance
         self.mqtt_client = mqtt.Client(clientID)
         self.mqtt_client.on_connect = self.on_connect
@@ -158,60 +168,36 @@ class client():
 class Controller:
     def __init__(self, id):
         # initialize an instance of an MQTT client as well
-        print('controller instance created...')
+        # print('controller instance created...')
         with open('initialization.json') as file:
             dict = json.load(file)
-        print(dict)
+        # print(dict)
         file.close()
         # check if the right service catalog is up
         self.service_catalog_url = dict['sc_url']
         self.broker = dict['broker']
         self.port = dict['port']
         self.sc_response = requests.get(dict['sc_url'])
-        print(self.sc_response)
+        # print(self.sc_response)
         self.mqtt_instance = client(id, self.broker, self.port)
         self.mqtt_instance.start()
         self.mqtt_instance.isSubscriber = False
-        self.mqtt_instance.mymessage = ''
-
-        # self.bot = telepot.Bot('1593071397:AAEC0W49SBjhxzMM1qMkWjahe5kJemefaqk')
-        # self.bot.deleteWebhook()
-        # print('bot set up complete')
-        # self.chatIDs = []
-        # self.__message = {"alert": "", "action": ""}
-        # MessageLoop(self.bot, {'chat': self.on_chat_message}).run_as_thread()
-
         try:
             if self.sc_response.status_code == 200:
                 print('the service catalog is up and running')
                 # proceed later on with the registration of control
         except:
             print('the service catalog is down')
-    # def on_chat_message(self, msg):
-    #     content_type, chat_type, chat_ID = telepot.glance(msg)
-    #     self.chatIDs.append(chat_ID)
-    #     message = msg['text']
-    #     if message == "/switchOn":
-    #         payload = self.__message.copy()
-    #         payload['e'][0]['v'] = "on"
-    #         payload['e'][0]['t'] = time.time()
-    #         self.client.myPublish(self.topic, payload)
-    #         self.bot.sendMessage(chat_ID, text="Led switched on")
-    #     elif message == "/switchOff":
-    #         payload = self.__message.copy()
-    #         payload['e'][0]['v'] = "off"
-    #         payload['e'][0]['t'] = time.time()
-    #         self.client.myPublish(self.topic, payload)
-    #         self.bot.sendMessage(chat_ID, text="Led switched off")
-    #     elif message =="/start":
-    #         self.bot.sendMessage(chat_ID, text="Welcome")
-    #         print('welcome is sent')
-    #     else:
-    #         self.bot.sendMessage(chat_ID, text="Command not supported")
 
     def get_ser_urls(self):
         # get the current active service lists
         self.active_services_list = service_search.search(self.service_catalog_url)
+
+
+# this method will update several variables (list of resources names and list of their topics)
+#MQTT resources  to subscribe to / to publish to
+#REST resources
+
 
     def update_resources_list(self):
         # the resources should include motion sensor, camera, LED, and push button
@@ -232,8 +218,6 @@ class Controller:
                     self.rc_pub_namelist = []
                     self.rc_pub_topiclist = []
                     self.mqtt_instance.rc_REST_dict_list = []
-
-                    # print(self.active_resources_list)
                     for R in self.active_resources_list:
                         if R['type'] == 'MQTT_2sub2':
                             self.rc_sub_namelist.append(R['resource_name'])
@@ -244,20 +228,18 @@ class Controller:
                         if R['type'] == 'REST':
                             self.mqtt_instance.rc_REST_dict_list.append(R)
 
-                    print(f'to sub to name list{self.rc_sub_namelist} topic list {self.rc_sub_topiclist}')
-                    print(f'to pub to name list{self.rc_pub_namelist} topic list {self.rc_pub_topiclist}')
-                    print(f'added {self.mqtt_instance.rc_REST_dict_list}')
-
-
+                    # print(f'to sub to name list{self.rc_sub_namelist} topic list {self.rc_sub_topiclist}')
+                    # print(f'to pub to name list{self.rc_pub_namelist} topic list {self.rc_pub_topiclist}')
+                    # print(f'added {self.mqtt_instance.rc_REST_dict_list}')
         except:
             print('could not update resources')
-
+#subscribe to all topics of active
     def sub_to_RCs(self):
         try:
             self.update_resources_list()
             # print(self.active_resources_list)
             for topic in self.rc_sub_topiclist:
-                print(f'topic is {topic}')
+                # print(f'topic is {topic}')
                 self.mqtt_instance.mySub(topic)
         except:
             print('could not subscribe')

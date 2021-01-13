@@ -140,21 +140,21 @@ class RESTBot:
         elif message == "/houses":
             self.show_houses_dict()
             self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
-        elif message == "/lock_house":
+        elif message == "/lock":
             self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
             self.previous_message = message
-        elif message == "/unlock_house":
+        elif message == "/unlock":
             self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
             self.previous_message = message
 
         elif message in self.active_IDs:
             if 'self.previous_message' in locals() or globals():
-                if self.previous_message == '/lock_house':
+                if self.previous_message == '/lock':
                     self.mqtt_instance.mypub('home01/servo01',json.dumps({'e':{'v':"15"}}))
                     self.bot.sendMessage(chat_ID, text=f'{message} is locked now\nrest assured...')
                 # print(self.houses_list_dict)
             if 'self.previous_message' in locals() or globals():
-                if self.previous_message == '/unlock_house':
+                if self.previous_message == '/unlock':
                     self.mqtt_instance.mypub('home01/servo01',json.dumps({'e':{'v':"150"}}))
                     self.bot.sendMessage(chat_ID, text=f'{message} is open now\nenjoy...')
             if self.previous_message =='/switchOn':
@@ -177,7 +177,6 @@ class RESTBot:
                 self.bot.sendMessage(chat_ID, text="Led switched off")
                 # print(self.houses_list_dict)
 
-
         else:
             self.bot.sendMessage(chat_ID, text="Command not supported")
 
@@ -185,19 +184,38 @@ class RESTBot:
     ################################################################
 
     def POST(self, *uri):
-        tosend = ''
-        print(f'post uri is {uri}')
-        output = {"status": "not-sent", "message": tosend}
-        if len(uri) != 0:
-            if uri[0] == 'motion':
-                body = cherrypy.request.body.read()
-                jsonBody = json.loads(body)
-                print(jsonBody)
-                if jsonBody['e']['v'] == True:
+        try:
+            tosend = ''
+            print(f'post uri is {uri}')
+            output = {"status": "not-sent", "message": tosend}
+            if len(uri) != 0:
+                if uri[0] == 'motion':
+                    body = cherrypy.request.body.read()
+                    jsonBody = json.loads(body)
+                    print(jsonBody)
+                    if jsonBody['e']['v'] == True:
+                        for chat_ID in self.chatIDs:
+                            print(chat_ID)
+                            self.bot.sendMessage(chat_ID, text=f'motion in house no. {jsonBody["bn"]} sensor no {jsonBody["e"]["no"]}')
+                if uri[0] == 'push_button':
+                    body = cherrypy.request.body.read()
+                    jsonBody = json.loads(body)
+                    print(jsonBody)
+                    if jsonBody['e']['v'] == True:
+                        for chat_ID in self.chatIDs:
+                            print(chat_ID)
+                            self.bot.sendMessage(chat_ID, text=f'push_buton is pressed in house no. {jsonBody["bn"]}  no {jsonBody["e"]["no"]}')
+
+                if uri[0] == 'haar':
+                    body = cherrypy.request.body.read()
+                    jsonBody = json.loads(body)
+                    print(jsonBody)
                     for chat_ID in self.chatIDs:
                         print(chat_ID)
-                        self.bot.sendMessage(chat_ID, text=f'motion in {jsonBody["bn"][0:6]}')
-        return json.dumps(output)
+                        self.bot.sendMessage(chat_ID, text=str(jsonBody))
+            return json.dumps(output)
+        except:
+            print('problem with post')
 
     ################################################################
 
@@ -297,3 +315,5 @@ if __name__ == "__main__":
     a3.start()
     a2.join()
     a3.join()
+
+
