@@ -36,20 +36,28 @@ def event_handler(self, dicto = None):
     value = dicto['e']['v']
     # conditions here
     ##########################################
-
+    print(dicto)
     if sen_name == 'motion':
+
         # pub message to led
         print(sen_no)
+        print(value)
         if value == True:
             print('True')
             print('house no is ' + house_no)
             try:
-                push_dict = {'e': {'v': True, 'time': str(time.time())}}
-
-                self.mypub('home' + house_no + '/led' + sen_no, json.dumps(push_dict))
-                service_search.search('REST_control')
-                requests.post('http://localhost:8099/motion',(dicto))
+                dump_dict = {'e': {'v': True , 'time': str(time.time())}}
+                # print(json.dumps(dump_dict) )
+                #led on using mqtt
+                self.mypub('home' + house_no + '/led' + sen_no, json.dumps(dump_dict))
+                # look for the bot and get its url
+                state , boturl = service_search.search(service_title = 'bot')
+                full_url = boturl+'/motion'
+                print(f'state is {state} and url is {boturl}')
+                print(full_url)
+                requests.post(full_url,(json.dumps(dicto)))
                 # telegram here
+                # x = requests.post()
                 # send post request to some service that translate post to bot messages
                 # log this data
             except:
@@ -84,7 +92,8 @@ def event_handler(self, dicto = None):
         #         x = requests.post(url,self.rc_REST_urllist[cam_index]).json()
         #         print(x)
 
-
+#mqtt client class (generic except for)
+#on message calls event handler
 class client():
     def __init__(self, clientID, broker, port):
         self.clientID = clientID

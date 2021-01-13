@@ -14,8 +14,21 @@ import string2numpy as s2n
 import cv2
 from io import BytesIO
 import numpy as np
+
+# accepts list of dictionaries of resources
+# returns the non-repeated list of house ids
+def show_house_ID(lista):
+    #given list of house names
+    h_ID = []
+    for element in lista:
+        if element['house_ID'] not in h_ID:
+            h_ID.append(element['house_ID'])
+    return h_ID
+
+
 class RESTBot:
-    exposed=True
+    exposed = True
+
     def __init__(self, token):
         # Local token
         self.tokenBot = token
@@ -26,27 +39,17 @@ class RESTBot:
             self.bot = telepot.Bot(self.tokenBot)
             self.bot.deleteWebhook()
             print('set up complete')
-            self.chatIDs=[]
+            self.chatIDs = []
             # initialize an instance of an BOT MQTT client as well
             with open('initialization.json') as file:
                 # print('opened file successfully')
                 dicto = json.load(file)
                 file.close()
-                # print(dicto)
-                # print(type(dicto))
-            # print(f'json file of the initialization {dicto}')
-
-            # print('closed file successfully')
-            # print(dicto)
 
             # check if the right service catalog is up
             self.service_catalog_url = dicto['sc_url']
             self.broker = dicto['broker']
             self.port = dicto['port']
-
-            # self.sc_response = requests.get(self.service_catalog_url)
-
-            # print('the response of Service Catalog'+self.sc_response)
             my_id = 'bot_mqtt'
             # print(self.broker,self.port)
 
@@ -58,80 +61,145 @@ class RESTBot:
             print('set up complete')
         except:
             print('settup failed    ')
-        self.__message={"alert":"","action":""}
+        self.__message = {"alert": "", "action": ""}
         MessageLoop(self.bot, {'chat': self.on_chat_message}).run_as_thread()
-    # for messages from the telegram user
+
+# updates lists of dictionaries and the active houses id --> active_IDs
+    def show_houses_dict(self):
+        state, RC_url = service_search.search(sc_url='http://localhost:8082', service_title='RC')
+        print(state, RC_url)
+        if state == True:
+            resources_list = resource_search.r_search()
+            self.houses_list_dict= []
+            for rc in resources_list:
+                if rc['house_ID'] not in self.houses_list_dict:
+                    self.houses_list_dict.append(rc)
+            self.active_IDs = show_house_ID(self.houses_list_dict)
+            print(self.active_IDs)
+            print(self.houses_list_dict)
+
+# called when user sends message from telegram
     def on_chat_message(self, msg):
+        self.show_houses_dict()
+        print(f'the list is {self.houses_list_dict}')
+
         content_type, chat_type, chat_ID = telepot.glance(msg)
         self.chatIDs.append(chat_ID)
         message = msg['text']
+        print(f'the message is {message} and the list is {self.houses_list_dict}')
+
         if message == "/switchOn":
-            payload = self.__message.copy()
-            # payload['e']['v'] = "on"
-            payload = {'e':{"v":"True"}}
-            payload['e']['v'] = True
-            payload['e']['time'] = time.time()
-            self.mqtt_instance.mypub('home01/led01', json.dumps(payload))
-            self.bot.sendMessage(chat_ID, text="Led switched on")
+            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
+            self.previous_message = message
         elif message == "/switchOff":
-            payload = self.__message.copy()
-            payload = {'e':{"v":False}}
-            self.mqtt_instance.mypub('home01/led01', json.dumps(payload))
-            self.bot.sendMessage(chat_ID, text="Led switched off")
-        elif message =="/start":
+            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
+            self.previous_message = message
+        elif message == "/start":
             self.bot.sendMessage(chat_ID, text="Welcome")
         elif message == "/faces01":
             state, haar_url = service_search.search(service_title='Haar')
             if state == True:
-                state,rc_url=service_search.search(service_title = 'RC')
+                state, rc_url = service_search.search(service_title='RC')
                 # print(state,rc_url)
-                RC_list =resource_search.r_search()
+                RC_list = resource_search.r_search()
                 for dicto in RC_list:
                     if dicto['house_ID'] == "home01" and dicto['resource_name'][0:6] == 'camera':
                         pass
                         # print(f'url is {dicto["URL"]} Port is {dicto["port"]}' )
-                        cam_url =f'http://{dicto["URL"]}:{dicto["port"]}'
+                        cam_url = f'http://{dicto["URL"]}:{dicto["port"]}'
                         print(cam_url)
                         x = requests.post(haar_url, cam_url)
                         print(x.json())
                         self.bot.sendMessage(chat_ID, text=str(x.json()))
         elif message == "/picture01":
-                state,rc_url=service_search.search(service_title = 'RC')
-                # print(state,rc_url)
-                if state == True:
-                    RC_list =resource_search.r_search()
-                    for dicto in RC_list:
-                        if dicto['house_ID'] == "home01" and dicto['resource_name'][0:6] == 'camera':
-                            pass
-                            # print(f'url is {dicto["URL"]} Port is {dicto["port"]}' )
-                            cam_url =f'http://{dicto["URL"]}:{dicto["port"]}'
-                            print(cam_url)
-                            # self.bot.sendMessage(chat_ID, text=str(x.json()))
-                            data = requests.get(cam_url).content  # retrieving data from im_cap.py [string]
-                            my_array = s2n.string2numpy(data)
-                            cv2.imwrite('buffer_file.jpg', my_array)
-                            with open('buffer_file.jpg') as file:
-                                # url = f'https://api.telegram.org/bot{self.tokenBot}/sendPhoto'
-                                self.bot.sendPhoto(chat_ID, photo=open('buffer_file.jpg', 'rb'))
-                                # self.bot
-                                file.close()
+            state, rc_url = service_search.search(service_title='RC')
+            # print(state,rc_url)
+            if state == True:
+                RC_list = resource_search.r_search()
+                for dicto in RC_list:
+                    print(dicto)
+                    if dicto['house_ID'] == "home01" and dicto['resource_name'][0:6] == 'camera':
+                        # print(f'url is {dicto["URL"]} Port is {dicto["port"]}' )
+                        cam_url = f'http://{dicto["URL"]}:{dicto["port"]}'
+                        print(cam_url)
+                        # self.bot.sendMessage(chat_ID, text=str(x.json()))
+                        data = requests.get(cam_url).content  # retrieving data from im_cap.py [string]
+                        my_array = s2n.string2numpy(data)
+                        cv2.imwrite('buffer_file.jpg', my_array)
+                        with open('buffer_file.jpg') as file:
+                            # url = f'https://api.telegram.org/bot{self.tokenBot}/sendPhoto'
+                            self.bot.sendPhoto(chat_ID, photo=open('buffer_file.jpg', 'rb'))
+                            # self.bot
+                            file.close()
+        # elif message == "/control":
+        #     buttons = [[InlineKeyboardButton(text=f'take picture', callback_data=f'/picture01'),
+        #                     InlineKeyboardButton(text=f'ON', callback_data=f'/switchOn'),
+        #                 InlineKeyboardButton(text=f'OFF ', callback_data=f'/switchOff')]]
+        #     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+        #     self.bot.sendMessage(chat_ID, text='What do you want to do', reply_markup=keyboard)
+        elif message == "/houses":
+            self.show_houses_dict()
+            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
+        elif message == "/lock_house":
+            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
+            self.previous_message = message
+        elif message == "/unlock_house":
+            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
+            self.previous_message = message
+
+        elif message in self.active_IDs:
+            if 'self.previous_message' in locals() or globals():
+                if self.previous_message == '/lock_house':
+                    self.mqtt_instance.mypub('home01/servo01',json.dumps({'e':{'v':"15"}}))
+                    self.bot.sendMessage(chat_ID, text=f'{message} is locked now\nrest assured...')
+                # print(self.houses_list_dict)
+            if 'self.previous_message' in locals() or globals():
+                if self.previous_message == '/unlock_house':
+                    self.mqtt_instance.mypub('home01/servo01',json.dumps({'e':{'v':"150"}}))
+                    self.bot.sendMessage(chat_ID, text=f'{message} is open now\nenjoy...')
+            if self.previous_message =='/switchOn':
+                payload = self.__message.copy()
+                # payload['e']['v'] = "on"
+                payload = {'e': {"v": "True"}}
+                payload['e']['v'] = True
+                payload['e']['time'] = time.time()
+                print(message)
+                self.mqtt_instance.mypub(message+'/led01', json.dumps(payload))
+                self.bot.sendMessage(chat_ID, text="Led switched on")
+            if self.previous_message == '/switchOff':
+                payload = self.__message.copy()
+                # payload['e']['v'] = "on"
+                payload = {'e': {"v": "False"}}
+                payload['e']['v'] = False
+                payload['e']['time'] = time.time()
+                print(message+'/led01')
+                self.mqtt_instance.mypub(message+'/led01', json.dumps(payload))
+                self.bot.sendMessage(chat_ID, text="Led switched off")
+                # print(self.houses_list_dict)
 
 
         else:
             self.bot.sendMessage(chat_ID, text="Command not supported")
-# actuation
-    def POST(self,*uri):
-        tosend=''
-        output={"status":"not-sent","message":tosend}
-        if len(uri)!=0:
-            if uri[0]=='motion':
-                body=cherrypy.request.body.read()
-                jsonBody=json.loads(body)
-                tosend = (jsonBody)
-                for chat_ID in self.chatIDs:
-                    print(chat_ID)
-                    self.bot.sendMessage(chat_ID, text=tosend)
+
+    # actuation
+    ################################################################
+
+    def POST(self, *uri):
+        tosend = ''
+        print(f'post uri is {uri}')
+        output = {"status": "not-sent", "message": tosend}
+        if len(uri) != 0:
+            if uri[0] == 'motion':
+                body = cherrypy.request.body.read()
+                jsonBody = json.loads(body)
+                print(jsonBody)
+                if jsonBody['e']['v'] == True:
+                    for chat_ID in self.chatIDs:
+                        print(chat_ID)
+                        self.bot.sendMessage(chat_ID, text=f'motion in {jsonBody["bn"][0:6]}')
         return json.dumps(output)
+
+    ################################################################
 
 class client():
     def __init__(self, clientID, broker, port):
@@ -152,7 +220,6 @@ class client():
     def on_connect(self, paho_mqtt, userdata, flags, rc):
         if rc == 0:
             print('connected to the broker {}'.format(self.broker))
-
         else:
             print(f'bad connection')
 
@@ -198,6 +265,7 @@ class cherry_thread(threading.Thread):
     def __init__(self, thread_ID):
         threading.Thread.__init__(self)
         self.thread_ID = thread_ID
+
     def run(self):
         conf = json.load(open("settings.json"))
         token = conf["telegram_token"]
@@ -209,15 +277,17 @@ class cherry_thread(threading.Thread):
         while 1:
             time.sleep(1)
 
-class  sc_registration_thread(threading.Thread):
+
+class sc_registration_thread(threading.Thread):
     def __init__(self, thread_ID):
         threading.Thread.__init__(self)
         self.thread_ID = thread_ID
+
     def run(self):
         # registering and updating of the registration
         # url = 'http://linksmart:8082/'  # when using a docker container
         url = 'http://localhost:8082/'
-        reg.registration('bot_REST.json', url,'bot')
+        reg.registration('bot_REST.json', url, 'bot')
 
 
 if __name__ == "__main__":
