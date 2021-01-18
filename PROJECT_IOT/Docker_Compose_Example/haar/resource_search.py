@@ -19,5 +19,5 @@ def r_search(sc_url='http://localhost:8087',resource_name=None):
             # print(f't he url is {url}')
     return state,url, port, topic
 
-print(r_search(resource_name='camera01'))
+# print(r_search(resource_name='led01'))
 

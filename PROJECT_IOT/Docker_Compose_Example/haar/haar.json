@@ -5,8 +5,8 @@
               "meta": {},
               "apis": [
                 {
-                  "id": "2",
-                  "title": "3",
+                  "id": "haar",
+                  "title": "haar",
                   "description": "string", 
                   "protocol": "string",
                   "url": "http://localhost:8098",

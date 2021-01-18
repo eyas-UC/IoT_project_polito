@@ -62,8 +62,8 @@ class RESTBot:
         except:
             print('settup failed    ')
         self.__message = {"alert": "", "action": ""}
-        MessageLoop(self.bot, {'chat': self.on_chat_message}).run_as_thread()
-
+        # MessageLoop(self.bot, {'chat': self.on_chat_message}).run_as_thread()
+        MessageLoop(self.bot, {'chat': self.on_chat_message,'callback_query': self.on_callback_query}).run_as_thread()
 # updates lists of dictionaries and the active houses id --> active_IDs
     def show_houses_dict(self):
         state, RC_url = service_search.search(sc_url='http://localhost:8082', service_title='RC')
@@ -78,22 +78,87 @@ class RESTBot:
             print(self.active_IDs)
             print(self.houses_list_dict)
 
-# called when user sends message from telegram
+
+#called when user choses one of the buttons after sending "/help" / "commands"
+    def on_callback_query(self,msg):
+        self.message = msg["data"]
+        print(msg['message']['chat']['id'])
+
+        self.chatID = msg['message']['chat']['id']
+        if self.message == "/switchOn":
+            self.bot.sendMessage(self.chat_IDs[0], text=f'available houses are {self.active_IDs}')
+            self.previous_message = self.message
+        if self.message == "/switchOff":
+            self.bot.sendMessage(self.chat_IDs[0], text=f'available houses are {self.active_IDs}')
+            self.previous_message = self.message
+        if self.message == "/houses":
+            self.bot.sendMessage(self.chat_IDs[0], text=f'available houses are {self.active_IDs}')
+            self.previous_message = self.message
+        if self.message == "/houses":
+            self.show_houses_dict()
+            self.bot.sendMessage(self.chat_IDs[0], text=f'available houses are {self.active_IDs}')
+        if self.message == "/lock":
+            self.bot.sendMessage(self.chat_IDs[0], text=f'available houses are {self.active_IDs}')
+            self.previous_message = self.message
+        if self.message == "/unlock":
+            self.bot.sendMessage(self.chat_IDs[0], text=f'available houses are {self.active_IDs}')
+            self.previous_message = self.message
+        if self.message == "/picture01":
+            print('in picture')
+            state, rc_url = service_search.search(service_title='RC')
+            if state == True:
+                RC_list = resource_search.r_search()
+                for dicto in RC_list:
+                    print(dicto)
+                    if dicto['resource_type'] =='camera':
+                        # if dicto['house_ID'] == "01" and dicto['resource_name'][0:6] == 'camera':
+                        # if dicto['house_ID'] == "01" :
+                        # print(f'url is {dicto["URL"]} Port is {dicto["port"]}' )
+                        cam_url = f'http://{dicto["URL"]}:{dicto["port"]}'
+                        print(cam_url)
+                        # self.bot.sendMessage(chat_ID, text=str(x.json()))
+                        data = requests.get(cam_url).content  # retrieving data from im_cap.py [string]
+                        my_array = s2n.string2numpy(data)
+                        cv2.imwrite('buffer_file.jpg', my_array)
+                        with open('buffer_file.jpg') as file:
+                            # url = f'https://api.telegram.org/bot{self.tokenBot}/sendPhoto'
+                            self.bot.sendPhoto(self.chat_ID, photo=open('buffer_file.jpg', 'rb'))
+                            file.close()
+                    else:
+                        print('camera is not found')
+
+# called when user sends text message from telegram
     def on_chat_message(self, msg):
         self.show_houses_dict()
         print(f'the list is {self.houses_list_dict}')
 
         content_type, chat_type, chat_ID = telepot.glance(msg)
         self.chatIDs.append(chat_ID)
+        self.chatID =chat_ID
+
         message = msg['text']
         print(f'the message is {message} and the list is {self.houses_list_dict}')
 
-        if message == "/switchOn":
-            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
+        if message == "/help" or "/commands":
+            buttons1 = [[
+                        InlineKeyboardButton(text=f'LED ON', callback_data=f'/switchOn'),
+                        InlineKeyboardButton(text=f'LED OFF', callback_data=f'/switchOff'),
+                        InlineKeyboardButton(text=f'Lock', callback_data=f'/lock'),
+                        InlineKeyboardButton(text=f'Unlock', callback_data=f'/unlock')
+                        ]]
+            buttons2 = [[
+                InlineKeyboardButton(text=f'faces', callback_data=f'/faces01'),
+                InlineKeyboardButton(text=f'snapshot', callback_data=f'/picture01')
+            ]]
+            keyboard1 = InlineKeyboardMarkup(inline_keyboard=buttons1)
+            keyboard2 = InlineKeyboardMarkup(inline_keyboard=buttons2)
+
+            self.bot.sendMessage(chat_ID, text ='1st', reply_markup=keyboard1)
+            self.bot.sendMessage(chat_ID, text ='2st',reply_markup=keyboard2)
+
+            # self.bot.sendMessage(chat_ID, text=f'commands {self.active_IDs}')
             self.previous_message = message
-        elif message == "/switchOff":
-            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
-            self.previous_message = message
+
         elif message == "/start":
             self.bot.sendMessage(chat_ID, text="Welcome")
         elif message == "/faces01":
@@ -111,41 +176,6 @@ class RESTBot:
                         x = requests.post(haar_url, cam_url)
                         print(x.json())
                         self.bot.sendMessage(chat_ID, text=str(x.json()))
-        elif message == "/picture01":
-            state, rc_url = service_search.search(service_title='RC')
-            # print(state,rc_url)
-            if state == True:
-                RC_list = resource_search.r_search()
-                for dicto in RC_list:
-                    print(dicto)
-                    if dicto['house_ID'] == "home01" and dicto['resource_name'][0:6] == 'camera':
-                        # print(f'url is {dicto["URL"]} Port is {dicto["port"]}' )
-                        cam_url = f'http://{dicto["URL"]}:{dicto["port"]}'
-                        print(cam_url)
-                        # self.bot.sendMessage(chat_ID, text=str(x.json()))
-                        data = requests.get(cam_url).content  # retrieving data from im_cap.py [string]
-                        my_array = s2n.string2numpy(data)
-                        cv2.imwrite('buffer_file.jpg', my_array)
-                        with open('buffer_file.jpg') as file:
-                            # url = f'https://api.telegram.org/bot{self.tokenBot}/sendPhoto'
-                            self.bot.sendPhoto(chat_ID, photo=open('buffer_file.jpg', 'rb'))
-                            # self.bot
-                            file.close()
-        # elif message == "/control":
-        #     buttons = [[InlineKeyboardButton(text=f'take picture', callback_data=f'/picture01'),
-        #                     InlineKeyboardButton(text=f'ON', callback_data=f'/switchOn'),
-        #                 InlineKeyboardButton(text=f'OFF ', callback_data=f'/switchOff')]]
-        #     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-        #     self.bot.sendMessage(chat_ID, text='What do you want to do', reply_markup=keyboard)
-        elif message == "/houses":
-            self.show_houses_dict()
-            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
-        elif message == "/lock":
-            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
-            self.previous_message = message
-        elif message == "/unlock":
-            self.bot.sendMessage(chat_ID, text=f'available houses are {self.active_IDs}')
-            self.previous_message = message
 
         elif message in self.active_IDs:
             if 'self.previous_message' in locals() or globals():

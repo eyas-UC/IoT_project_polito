@@ -1,18 +1,18 @@
 version : '3'
 
 services:
-  appA:
+  haar:
     image:  python:alpine3.7
     build:
-      context:  ./client
-      dockerfile: Dockerfile_client
+      context:  ./haar
+      dockerfile: Dockerfile
 
         
-  appB:
+  rc:
     image:  python:alpine3.7
     build:
-      context:  ./service
-      dockerfile: Dockerfile_service  
+      context:  ./resource_catalog
+      dockerfile: Dockerfile
       
     ports:
       - 8080:8080

@@ -3,7 +3,7 @@ import time
 import json
 import requests
 import service_search
-from threading import *
+import threading
 from registration import *
 import telepot
 from telepot.loop import MessageLoop
@@ -23,7 +23,7 @@ def number_handler(bn):
         return (number)
 
 
-def event_handler(self, dicto = None):
+def event_handler(self, dicto=None):
     # {
     # "bn":"xx",
     # "e":{"n":"motion", "no":"number","t":time","v","value"}
@@ -36,27 +36,27 @@ def event_handler(self, dicto = None):
     # conditions here
     ##########################################
     # print(dicto)
-    if sen_name =='motion' :
+    if sen_name == 'motion':
 
         # pub message to led
         # print(sen_no)
         # print(value)
         if value == True:
-# response to motion in the house
+            # response to motion in the house
             try:
-                dump_dict = {'e': {'v': True , 'time': str(time.time())}}
+                dump_dict = {'e': {'v': True, 'time': str(time.time())}}
                 # print(json.dumps(dump_dict) )
-                #led on using mqtt
+                # led on using mqtt
                 self.mypub('home' + house_no + '/led' + sen_no, json.dumps(dump_dict))
                 # look for the bot and get its url
-                state , boturl = service_search.search(service_title = 'bot')
+                state, boturl = service_search.search(service_title='bot')
                 # telegram here
 
                 if state == True:
-                    full_url = boturl+'/motion'
+                    full_url = boturl + '/motion'
                     # print(f'state is {state} and url is {boturl}')
                     # print(full_url)
-                    requests.post(full_url,(json.dumps(dicto))) # telegram bot
+                    requests.post(full_url, (json.dumps(dicto)))  # telegram bot
 
                 # send post request to some service that translate post to bot messages
                 # log this data
@@ -71,7 +71,7 @@ def event_handler(self, dicto = None):
             except:
                 print('error in dictionary')
             # print('False')
-    if sen_name =='push_button' :
+    if sen_name == 'push_button':
         try:
             push_dict = {'e': {'v': True, 'time': str(time.time())}}
             # print('push button state is changed')
@@ -85,25 +85,20 @@ def event_handler(self, dicto = None):
                     requests.post(full_url, (json.dumps(dicto)))
 
                 for dump_dict in self.rc_REST_dict_list:
-                    if dump_dict['house_ID'] ==  house_no:
-                        #cam found in the same house where pb is pressed
+                    if dump_dict['house_ID'] == house_no:
+                        # cam found in the same house where pb is pressed
                         state, haar_url = service_search.search(service_title='Haar')
                         if state == True:
-                            # print(f'house no {house_no} ip {dicto["URL"]} port {dicto["port"]}')
                             cam_url = 'http://' + dump_dict["URL"] + ':' + dump_dict["port"]
-                            x = requests.post(haar_url,cam_url)
+                            x = requests.post(haar_url, cam_url)
                             full_url = boturl + '/haar'
-                            # print(full_url)-
-                            # print(type(x.json()))
-                            # print(x.json())
                             requests.post(full_url, json.dumps(x.json()))
-
-                        # x = requests.post(haar_url, cam_url)
         except:
             print('error pushbutton posting/haar')
 
-#mqtt client class (generic except for)
-#on message calls event handler
+
+# mqtt client class (generic except for)
+# on message calls event handler
 class client():
     def __init__(self, clientID, broker, port):
         self.clientID = clientID
@@ -193,11 +188,9 @@ class Controller:
         # get the current active service lists
         self.active_services_list = service_search.search(self.service_catalog_url)
 
-
-# this method will update several variables (list of resources names and list of their topics)
-#MQTT resources  to subscribe to / to publish to
-#REST resources
-
+    # this method will update several variables (list of resources names and list of their topics)
+    # MQTT resources  to subscribe to / to publish to
+    # REST resources
 
     def update_resources_list(self):
         # the resources should include motion sensor, camera, LED, and push button
@@ -233,7 +226,8 @@ class Controller:
                     # print(f'added {self.mqtt_instance.rc_REST_dict_list}')
         except:
             print('could not update resources')
-#subscribe to all topics of active
+
+    # subscribe to all topics of active
     def sub_to_RCs(self):
         try:
             self.update_resources_list()
@@ -245,22 +239,24 @@ class Controller:
             print('could not subscribe')
 
 
-class logic(Thread):
+
+class sc_registration_thread(threading.Thread):
 
     def __init__(self, thread_ID):
-        Thread.__init__(self)
+        threading.Thread.__init__(self)
+        self.thread_ID = thread_ID
 
     def run(self):
-        while True:
-            time.sleep(5)
-            # print(((a_a.mqtt_instance.mymessage)))
-            # print(a_a.mqtt_instance.mymessage)
+        # registering and updating of the registration
+        # url = 'http://linksmart:8082/'  # when using a docker container
+        url = 'http://localhost:8082/'
+        registration('Control_REST.json', url, 'control')
 
 
-class controller_thread(Thread):
+class controller_thread(threading.Thread):
 
     def __init__(self, thread_ID):
-        Thread.__init__(self)
+        threading.Thread.__init__(self)
 
     def run(self):
         # controlling led
@@ -272,5 +268,8 @@ class controller_thread(Thread):
 
 
 mythread2 = controller_thread('idd')
+mythread1 = sc_registration_thread('registration')
+mythread1.start()
 mythread2.start()
+mythread1.join()
 mythread2.join()

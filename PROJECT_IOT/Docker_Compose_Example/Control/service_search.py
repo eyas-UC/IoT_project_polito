@@ -2,10 +2,8 @@ import requests
 
 def search(sc_url='http://localhost:8082',service_title=None):
     response_dict = requests.get(sc_url).json()
-    # print(response_dict)
     service_list = response_dict['services']
     if service_title == None:
-        # print('here for some reason')
         return service_list
     else:
         state = False

@@ -8,30 +8,12 @@ import registration as reg
 import string2numpy as s2n
 from service_search import *
 from resource_search import *
-
+import threading
 
 class HaarREST(object):
 	exposed = True
 	def __init__(self):
 		pass
-		# self.cameral_url = None
-		# self.found = False
-		# try:
-		# 	print('hello')
-		# 	try:
-		# 		state,url = search('http://localhost:8082', 'RC')
-		# 		if state == True:
-		# 			print('ser and res cat are up')
-		# 			state,self.cameral_url,self.cameral_port,topic=r_search(resource_name='camera01')
-		# 			print(state,self.cameral_url,self.cameral_port,topic)
-		# 			if state == True:
-		# 				print('\n\ncamera found at {} {}\n\n'.format(self.cameral_url, self.cameral_port))
-		# 				self.found = True
-		# 	except:
-		# 		print('check service catalog and/or resource catalog')
-		# except:
-		# 	print('cannot connect to linksmart')
-
 
 	def GET(self,**params):
 		print(params.values())
@@ -79,21 +61,10 @@ class HaarREST(object):
 	def POST(self):
 		cam_url = cherrypy.request.body.read().decode('utf-8')
 		try:
-			# print('else')
 			face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 			np.set_printoptions(threshold=sys.maxsize)
-			# cam = "http://"+self.cameral_url+":"+self.cameral_port
-			# print('url is this \n\n'+cam)
 			data = requests.get(cam_url).content #retrieving data from im_cap.py [string]
 			my_array = s2n.string2numpy(data)
-			# print(my_array)
-			# # show image
-			# cv2.imshow('Color image', my_array)
-			# cv2.waitKey(5000)
-			# cv2.destroyAllWindows()
-
-			#print(hashlib.md5(strr.encode('utf-8')).hexdigest())
-			#print(my_array.shape)
 
 			try:
 				faces = face_cascade.detectMultiScale(my_array, 1.3, 5)
@@ -114,27 +85,35 @@ class HaarREST(object):
 
 
 
+
+class  cherry_thread(threading.Thread):
+	def __init__(self, thread_ID):
+		threading.Thread.__init__(self)
+		self.thread_ID = thread_ID
+
+	def run(self):
+		Haar = HaarREST()
+		conf = {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}}
+		cherrypy.config.update({'server.socket_host': '0.0.0.0', 'server.socket_port': 8098})
+		cherrypy.tree.mount(Haar, '/', conf)
+		cherrypy.engine.start()
+
+class sc_registration_thread(threading.Thread):
+
+	def __init__(self, thread_ID):
+		threading.Thread.__init__(self)
+		self.thread_ID = thread_ID
+
+	def run(self):
+		# registering and updating of the registration
+		# url = 'http://linksmart:8082/'  # when using a docker container
+		url = 'http://localhost:8082/'
+		reg.registration('haar.json', url, 'haar')
+
 if __name__ == '__main__':
-
-	Haar = HaarREST()
-
-	conf = {
-		'/':{
-				'request.dispatch':cherrypy.dispatch.MethodDispatcher()
-		}
-	}
-	cherrypy.config.update({'server.socket_host': '0.0.0.0', 'server.socket_port':8098})
-	cherrypy.tree.mount(Haar, '/', conf)
-	cherrypy.engine.start()
-
-	# url = 'http://linksmart:8082/'
-	url = 'http://localhost:8082/'
-
-	reg.registration('haar.json', url)
-
-
-
-
-
-
-	#cherrypy.engine.exit()
+    a2 = sc_registration_thread(2)
+    a3 = cherry_thread(3)
+    a2.start()
+    a3.start()
+    a2.join()
+    a3.join()
