@@ -1,0 +1,18 @@
+version : '3'
+
+services:
+  haar:
+    image:  python:alpine3.7
+    build:
+      context:  ./haar
+      dockerfile: Dockerfile
+
+        
+  rc:
+    image:  python:alpine3.7
+    build:
+      context:  ./resource_catalog
+      dockerfile: Dockerfile
+      
+    ports:
+      - 8080:8080

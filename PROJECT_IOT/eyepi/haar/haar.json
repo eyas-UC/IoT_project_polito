@@ -1,0 +1,23 @@
+{
+              "type": "Service",
+              "title": "Haar",
+              "description": "Face recognition",
+              "meta": {},
+              "apis": [
+                {
+                  "id": "haar",
+                  "title": "haar",
+                  "description": "string", 
+                  "protocol": "string",
+                  "url": "http://haar:8098",
+                  "spec": {
+                    "mediaType": "string",
+                    "url": "string",
+                    "schema": {}
+                  },
+                  "meta": {}
+                }
+              ],
+              "doc": "string",
+              "ttl": 3
+            }

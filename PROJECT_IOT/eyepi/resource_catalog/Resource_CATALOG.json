@@ -1,0 +1,23 @@
+{
+                          "type": "REST_API",
+                          "title": "RC",
+                          "description": "RC",
+                          "meta": {},
+                          "apis": [
+                            {
+                              "id": "RC",
+                              "title": "RC",
+                              "description": "none",
+                              "protocol": "REST",
+                              "url": "http://rc:8087",
+                              "spec": {
+                                "mediaType": "",
+                                "url": "",
+                                "schema": null
+                              },
+                              "meta": null
+                            }
+                          ],
+                          "doc": "http://RC:8087",
+                          "ttl": 5
+                        }

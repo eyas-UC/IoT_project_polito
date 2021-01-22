@@ -1,0 +1,3 @@
+docker run --name bot --network="mynet" -it -p 8099:8099 bot_im
+
+docker run --name haar --network="mynet" -it -p 8097:8097 haar_im

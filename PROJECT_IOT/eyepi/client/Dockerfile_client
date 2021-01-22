@@ -1,0 +1,7 @@
+ARG PYTHON_VERSION
+FROM python:$PYTHON_VERSION
+COPY . /app
+WORKDIR /app
+RUN pip install --upgrade pip
+RUN pip install requests
+CMD python ./cli.py
