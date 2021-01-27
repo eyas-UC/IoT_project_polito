@@ -1,1 +1,0 @@
-print('hello there\n this is the \nentry code')
