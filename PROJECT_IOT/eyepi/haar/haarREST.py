@@ -103,12 +103,22 @@ class sc_registration_thread(threading.Thread):
 	def __init__(self, thread_ID):
 		threading.Thread.__init__(self)
 		self.thread_ID = thread_ID
-
+		with open('initialization.json') as file:
+			self.dicto = json.load(file)
+		# print(dict)
+		file.close()
 	def run(self):
 		# registering and updating of the registration
-		url = 'http://linksmart:8082/'  # when using a docker container
-		# url = 'http://localhost:8082/'
-		reg.registration('haar.json', url, 'haar')
+		# url = 'http://linksmart:8082/'  # when using a docker container
+		try:
+			url = self.dicto['sc_url']
+			reg.registration('haar.json', url, 'haar')
+
+		except:
+			print('error in registration trying again')
+
+	# url = self.dicto['sc_url_local']
+			# reg.registration('haar.json', url, 'haar')
 
 if __name__ == '__main__':
     a2 = sc_registration_thread(2)

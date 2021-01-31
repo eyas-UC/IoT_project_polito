@@ -10,7 +10,21 @@ services:
         #- PYTHON_VERSION=3.7.0-alpine3.8
 
     ports:
-      - 8097:8097
+      - 8098:8098
+    stdin_open: true
+    tty: true
+    networks:
+      - iotnet
+
+  bot:
+    build:
+      context:  ./Telegram_Bot
+      dockerfile: Dockerfile
+      #args:
+        #- PYTHON_VERSION=3.7.0-alpine3.8
+
+    ports:
+      - 8099:8099
     stdin_open: true
     tty: true
     networks:

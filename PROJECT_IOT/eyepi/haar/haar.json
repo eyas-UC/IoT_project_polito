@@ -9,7 +9,7 @@
                   "title": "haar",
                   "description": "string", 
                   "protocol": "string",
-                  "url": "http://haar:8098",
+                  "url": "http://localhost:8098",
                   "spec": {
                     "mediaType": "string",
                     "url": "string",

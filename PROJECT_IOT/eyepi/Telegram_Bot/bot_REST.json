@@ -9,7 +9,7 @@
                               "title": "bot",
                               "description": "none",
                               "protocol": "REST",
-                              "url": "http://bot:8099",
+                              "url": "http://localhost:8099",
                               "spec": {
                                 "mediaType": "",
                                 "url": "",

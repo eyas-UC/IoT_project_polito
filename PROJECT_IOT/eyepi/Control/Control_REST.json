@@ -18,6 +18,6 @@
                               "meta": null
                             }
                           ],
-                          "doc": "http://control:8097",
+                          "doc": "http://localhost:8097",
                           "ttl": 7
                         }

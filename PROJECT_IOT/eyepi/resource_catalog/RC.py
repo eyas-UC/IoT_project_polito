@@ -143,11 +143,21 @@ class  sc_registration_thread(threading.Thread):
     def __init__(self, thread_ID):
         threading.Thread.__init__(self)
         self.thread_ID = thread_ID
+        with open('initialization.json') as file:
+            self.dicto = json.load(file)
+        # print(dict)
+        file.close()
+
     def run(self):
         # registering and updating of the registration
-        url = 'http://linksmart:8082/'  # when using a docker container
+        # url = 'http://linksmart:8082/'  # when using a docker container
         # url = 'http://localhost:8082/'
-        reg.registration('Resource_CATALOG.json', url,'RC')
+        try:
+            url = self.dicto['sc_url']
+            reg.registration('Resource_CATALOG.json', url,'RC')
+        except:
+            print('error in registration trying again')
+
 
 
 class delete_thread(threading.Thread):

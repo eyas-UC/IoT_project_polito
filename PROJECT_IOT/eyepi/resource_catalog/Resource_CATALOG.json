@@ -9,7 +9,7 @@
                               "title": "RC",
                               "description": "none",
                               "protocol": "REST",
-                              "url": "http://rc:8087",
+                              "url": "http://localhost:8087",
                               "spec": {
                                 "mediaType": "",
                                 "url": "",
@@ -18,6 +18,6 @@
                               "meta": null
                             }
                           ],
-                          "doc": "http://RC:8087",
+                          "doc": "http://localhost:8087",
                           "ttl": 5
                         }

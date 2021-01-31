@@ -22,8 +22,15 @@ def number_handler(bn):
     else:
         return (number)
 
-
+# event handler function is a function inside the message callback of the MQTT
+# it checks the sensor name,no, and house no, then decide where what action
+#  should be taken accordingly
 def event_handler(self, dicto=None):
+
+    # message structure
+    # bn => house no
+    # e  => event dictionary
+    # n  => name of sensor
     # {
     # "bn":"xx",
     # "e":{"n":"motion", "no":"number","t":time","v","value"}
@@ -33,72 +40,83 @@ def event_handler(self, dicto=None):
     sen_no = dicto['e']['no']
     updated_time = dicto['e']['t']
     value = dicto['e']['v']
+
     # conditions here
     ##########################################
-    # print(dicto)
-    if sen_name == 'motion':
 
+    if sen_name == 'motion':
         # pub message to led
-        # print(sen_no)
-        # print(value)
         if value == True:
             # response to motion in the house
             try:
                 dump_dict = {'e': {'v': True, 'time': str(time.time())}}
-                # print(json.dumps(dump_dict) )
-                # led on using mqtt
+                # turn ON the LED using mqtt message
                 self.mypub('home' + house_no + '/led' + sen_no, json.dumps(dump_dict))
                 # look for the bot and get its url
-                state, boturl = service_search.search(sc_url='http://linksmart:8082',service_title='bot')
+                # print(self.service_catalog_url)
+                state, boturl = service_search.search(sc_url="http://linksmart:8082/" ,service_title='bot')
                 # telegram here
-
                 if state == True:
+                # if state is true --> bot RESTAPI is working
                     full_url = boturl + '/motion'
-                    # print(f'state is {state} and url is {boturl}')
-                    # print(full_url)
-                    requests.post(full_url, (json.dumps(dicto)))  # telegram bot
-
+                    print(full_url)
+                    requests.post(full_url, (json.dumps(dicto)))  #send POST request to telegram bot API
                 # send post request to some service that translate post to bot messages
                 # log this data
             except:
                 print('error in dictionary1')
+
         if value == False:
             try:
-                # pass
+                # turn OFF the LED using mqtt message
                 push_dict = {'e': {'v': False, 'time': str(time.time())}}
                 self.mypub('home' + house_no + '/led' + sen_no, json.dumps(push_dict))
-                # log this data
             except:
                 print('error in dictionary')
             # print('False')
+
+
     if sen_name == 'push_button':
         try:
             push_dict = {'e': {'v': True, 'time': str(time.time())}}
             # print('push button state is changed')
             if value == True:
                 print('push_button pressed')
-
-                state, boturl = service_search.search(sc_url='http://linksmart:8082',service_title='bot')
-                # telegram here
+                # look for botREST api
+                state, boturl = service_search.search(sc_url="http://linksmart:8082/" ,service_title='bot')
+                ####################################
+                # Sending telegram POST request here
                 if state == True:
+                #state is true when the API is active
                     full_url = boturl + '/push_button'
                     requests.post(full_url, (json.dumps(dicto)))
+
+
 
                 for dump_dict in self.rc_REST_dict_list:
                     if dump_dict['house_ID'] == house_no:
                         # cam found in the same house where pb is pressed
-                        state, haar_url = service_search.search(sc_url='http://linksmart:8082',service_title='Haar')
+                        state, haar_url = service_search.search(sc_url="http://linksmart:8082/",service_title='Haar')
+                        print(haar_url)
+
                         if state == True:
                             cam_url = 'http://' + dump_dict["URL"] + ':' + dump_dict["port"]
+                            print(cam_url)
+                            # haar accepts a post request with the link of the camera's address
                             x = requests.post(haar_url, cam_url)
+                            print(x.json())
+                            # send result of face detection to bot
                             full_url = boturl + '/haar'
-                            requests.post(full_url, json.dumps(x.json()))
+                            dicto['e']['v'] = x.json()
+                            dicto['e']['n'] = 'haar'
+                            requests.post(full_url, json.dumps(dicto))
         except:
             print('error pushbutton posting/haar')
 
 
 # mqtt client class (generic except for)
 # on message calls event handler
+
 class client():
     def __init__(self, clientID, broker, port):
         self.clientID = clientID
@@ -170,16 +188,28 @@ class Controller:
         file.close()
         # check if the right service catalog is up
         self.service_catalog_url = dict['sc_url']
-        self.broker = dict['broker']
+        self.broker = dict['broker']#raspberry pi broker is used in this case
         self.port = dict['port']
-        self.sc_response = requests.get(dict['sc_url'])
+
+        # in this section of code
+        # we try to connect to the dockerized then local host if not dockerized
+        try:
+            self.service_catalog_url = dict['sc_url']
+            self.sc_response = requests.get(dict['sc_url'])
+        except:
+            print('trying to connect to service catalog\nusing local address')
+            try:
+                self.service_catalog_url =dict['sc_url_local']
+                self.sc_response = requests.get(dict['sc_url_local'])
+            except:
+                self.__init__(id)
         # print(self.sc_response)
         self.mqtt_instance = client(id, self.broker, self.port)
         try:
             self.mqtt_instance.start()
 
         except:
-            print('unable to connect to broker check raspberrypi')
+            print('unable to connect to MQTT broker check raspberrypi')
         self.mqtt_instance.isSubscriber = False
         try:
             if self.sc_response.status_code == 200:
@@ -190,7 +220,10 @@ class Controller:
 
     def get_ser_urls(self):
         # get the current active service lists
-        self.active_services_list = service_search.search(self.service_catalog_url)
+        # print(self.service_catalog_url)
+
+        self.active_services_list = service_search.search("http://linksmart:8082/")
+        # print(self.active_services_list)
 
     # this method will update several variables (list of resources names and list of their topics)
     # MQTT resources  to subscribe to / to publish to
@@ -206,11 +239,15 @@ class Controller:
                 # print(S)
 
                 if S['title'] == 'RC':  # look for resource catalog in service catalog
+                    print(S['title'])
                     # there should be only one instance of RC running at a time
-                    # url = S['apis'][0]['url'] #localhost
-                    url = S['doc']
+                    # url = S['apis'][0]['url'] #docker
+                    url = S['doc']#localhost
+                    # print(url)
                     x = requests.get(url).json()
+                    # print(x)
                     self.active_resources_list = x["list_of_RCs"]
+                    print(self.active_resources_list)
                     self.rc_sub_namelist = []
                     self.rc_sub_topiclist = []
                     self.rc_pub_namelist = []
@@ -230,7 +267,7 @@ class Controller:
                     # print(f'to pub to name list{self.rc_pub_namelist} topic list {self.rc_pub_topiclist}')
                     # print(f'added {self.mqtt_instance.rc_REST_dict_list}')
         except:
-            print('could not update resources')
+            print('could not update resources or no resources')
 
     # subscribe to all topics of active
     def sub_to_RCs(self):
@@ -250,12 +287,23 @@ class sc_registration_thread(threading.Thread):
     def __init__(self, thread_ID):
         threading.Thread.__init__(self)
         self.thread_ID = thread_ID
+        with open('initialization.json') as file:
+            self.dicto = json.load(file)
+        # print(dict)
+        file.close()
 
     def run(self):
         # registering and updating of the registration
-        url = 'http://linksmart:8082/'  # when using a docker container
-        # url = 'http://localhost:8082/'
-        registration('Control_REST.json', url, 'control')
+
+        # url = 'http://linksmart:8082/'  # when using a docker container
+        try:
+            url =  self.dicto['sc_url']
+            registration('Control_REST.json', url, 'control')
+        except:
+            print('error in trying local')
+            # url = self.dicto['sc_url_local']
+            # registration('Control_REST.json', url, 'control')
+
 
 
 class controller_thread(threading.Thread):
@@ -267,7 +315,8 @@ class controller_thread(threading.Thread):
         # controlling led
         a_a = Controller('1')
         while True:
-            # a_a.update_resources_list()
+            # subscribe to resources every 30 secs
+            # maybe a new resource is up now
             a_a.sub_to_RCs()
             time.sleep(30)
 
