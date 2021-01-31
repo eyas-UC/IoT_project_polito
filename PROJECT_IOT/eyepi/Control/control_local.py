@@ -54,7 +54,7 @@ def event_handler(self, dicto=None):
                 self.mypub('home' + house_no + '/led' + sen_no, json.dumps(dump_dict))
                 # look for the bot and get its url
                 # print(self.service_catalog_url)
-                state, boturl = service_search.search(sc_url="http://linksmart:8082/" ,service_title='bot')
+                state, boturl = service_search.search(sc_url="http://localhost:8082/" ,service_title='bot')
                 # telegram here
                 if state == True:
                 # if state is true --> bot RESTAPI is working
@@ -83,7 +83,7 @@ def event_handler(self, dicto=None):
             if value == True:
                 print('push_button pressed')
                 # look for botREST api
-                state, boturl = service_search.search(sc_url="http://linksmart:8082/" ,service_title='bot')
+                state, boturl = service_search.search(sc_url="http://localhost:8082/" ,service_title='bot')
                 ####################################
                 # Sending telegram POST request here
                 if state == True:
@@ -96,7 +96,7 @@ def event_handler(self, dicto=None):
                 for dump_dict in self.rc_REST_dict_list:
                     if dump_dict['house_ID'] == house_no:
                         # cam found in the same house where pb is pressed
-                        state, haar_url = service_search.search(sc_url="http://linksmart:8082/",service_title='Haar')
+                        state, haar_url = service_search.search(sc_url="http://localhost:8082/",service_title='Haar')
                         print(haar_url)
 
                         if state == True:
@@ -222,7 +222,7 @@ class Controller:
         # get the current active service lists
         # print(self.service_catalog_url)
 
-        self.active_services_list = service_search.search("http://linksmart:8082/")
+        self.active_services_list = service_search.search("http://localhost:8082/")
         # print(self.active_services_list)
 
     # this method will update several variables (list of resources names and list of their topics)

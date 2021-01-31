@@ -85,7 +85,7 @@ class RESTBot:
         # look for RC in SC then in RC find all RC according to house
         try:
             # print(self.__class__.__name__)
-            state, RC_url = service_search.search(sc_url='http://linksmart:8082', service_title='RC')
+            state, RC_url = service_search.search(sc_url='http://localhost:8082', service_title='RC')
             # print(state, RC_url)
             # state ==> true means RC is found
             if state == True:
@@ -200,10 +200,10 @@ class RESTBot:
             # file.close()
 # updates lists of dictionaries and the active houses id --> active_IDs
     def show_houses_dict(self):
-        state, RC_url = service_search.search(sc_url='http://linksmart:8082', service_title='RC')
+        state, RC_url = service_search.search(sc_url='http://localhost:8082', service_title='RC')
         # print(state, RC_url)
         if state == True:
-            resources_list = resource_search.r_search(sc_url='http://rc:8087')
+            resources_list = resource_search.r_search(sc_url='http://localhost:8087')
             self.houses_list_dict= []
             for rc in resources_list:
                 if rc['house_ID'] not in self.houses_list_dict:

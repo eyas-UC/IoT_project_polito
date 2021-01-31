@@ -115,9 +115,8 @@ class sc_registration_thread(threading.Thread):
 			reg.registration('haar.json', url, 'haar')
 
 		except:
-			print('error in registration trying again')
-
-	# url = self.dicto['sc_url_local']
+			print('error trying local')
+			# url = self.dicto['sc_url_local']
 			# reg.registration('haar.json', url, 'haar')
 
 if __name__ == '__main__':
