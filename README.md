@@ -26,6 +26,9 @@ the registered resource should be in this format(can be modified)
 "last_update":"time.time()"
 }
 
+[![YouTube](http://i.ytimg.com/vi/mSV3a5OKM-w/hqdefault.jpg)](https://www.youtube.com/watch?v=mSV3a5OKM-w)
+[![YouTube](http://i.ytimg.com/vi/AfFQxK9TC6E/hqdefault.jpg)](https://www.youtube.com/watch?v=AfFQxK9TC6E)
 
-https://www.youtube.com/watch?v=1qw5ITr3k9E promo
-https://www.youtube.com/watch?v=mSV3a5OKM-w&t=226s demo
+
+
+
